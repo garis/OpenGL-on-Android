@@ -12,3 +12,4 @@
 1. approfondire (aka testare) VBO in OpenGLES20ProgrammingGuide.pdf pag 115.
 2. errore 1024 (il numero esatto non lo ricordo) forse colpa dei thread.
 3. ottimizzare OBJParser
+4. testo in sovraimpressione VS Z-buffer
