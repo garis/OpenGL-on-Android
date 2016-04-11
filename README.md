@@ -7,10 +7,11 @@
 6. aureola
 7. pelle color verde
 8. trucco esagerato
+9. COCCODE!!!!
 
 # Note serie (& TO DO) #
 1. approfondire (aka testare) VBO in OpenGLES20ProgrammingGuide.pdf pag 115.
 2. errore 1024 (il numero esatto non lo ricordo) forse colpa dei thread.
 3. ottimizzare OBJParser
-4. testo in sovraimpressione VS Z-buffer
+4. http://www.learnopengles.com/tag/vbos/
 5. https://www.khronos.org/registry/gles/specs/2.0/es_full_spec_2.0.25.pdf
