@@ -17,7 +17,7 @@ www.wikipedia.org/wiki/Wavefront_.obj_file
 
 # Note serie (& TO DO) #
 1. approfondire (aka testare) VBO in OpenGLES20ProgrammingGuide.pdf pag 115.
-2. errore 1024 (il numero esatto non lo ricordo) forse colpa dei thread.
+2. errore 1280 (il numero esatto non lo ricordo) RISOLTO.
 3. ottimizzare OBJParser
 4. www.learnopengles.com/tag/vbos/
 5. www.khronos.org/registry/gles/specs/2.0/es_full_spec_2.0.25.pdf
