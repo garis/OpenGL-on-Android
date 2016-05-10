@@ -77,16 +77,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         loadingGear = new Model3D();
         loadingGear.loadFromOBJ(context, "gear");
         loadingGear.loadGLTexture(context, R.drawable.white);
-        loadingGear.scale(new Vector3(1.3, 1.3, 1.3));
-        loadingGear.move(new Vector3(0, 2, 0));
+        loadingGear.scale(new Vector3(1.6, 1.6, 1.6));
+        loadingGear.move(new Vector3(0, 4, 0));
         loadingGear.rotate(new Vector3(0, 0, 0));
+        loadingGear.setColor(255, 76, 59,255);
 
         loadingText = new Model3D();
         loadingText.loadFromOBJ(context, "loading");
-        loadingText.loadGLTexture(context, R.drawable.loading);
-        loadingText.scale(new Vector3(2.6, 2.6, 2.6));
-        loadingText.move(new Vector3(0, -8, 0));
+        loadingText.loadGLTexture(context, R.drawable.white);
+        loadingText.scale(new Vector3(2.7, 2.7, 2.7));
+        loadingText.move(new Vector3(0, -7, 0));
         loadingText.rotate(new Vector3(0, 0, 0));
+        loadingText.setColor(0, 114, 187,255);
 
         LoadingThread loadingThread = new LoadingThread();
 
@@ -103,7 +105,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[1].scale(new Vector3(0.9, 0.9, 0.9));
         heads[1].move(new Vector3(0, 0, 0));
         heads[1].rotate(new Vector3(90, 0, 0));
-        loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.texbmp));
+        loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
 
         heads[2] = new Model3D();
         heads[2].scale(new Vector3(1.5, 1.5, 1.5));
@@ -237,7 +239,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     //move the selected object
     public void touchMove(Vector3 screenCoords) {
-        if (STATE == STATUS.DRAWING) {
+        if (STATE == STATUS.DRAWING && touchDownCoords!=null) {
             //get the angle between the touchDown and the current position tapped on the screen
             float angle = (float) Math.atan2((screenCoords.y() - touchDownCoords.y()), (screenCoords.x() - touchDownCoords.x()));
 
@@ -277,7 +279,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // add the source code to the shader and compile it
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
-
         return shader;
     }
 

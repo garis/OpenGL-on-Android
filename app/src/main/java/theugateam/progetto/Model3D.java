@@ -115,8 +115,6 @@ public class Model3D {
         _angleZ = 0;
 
         updatePointerVariables();
-
-        if (OpenGL.DEBUG) Log.d("DEBUG", "head Model3D");
     }
 
     private void updatePointerVariables() {
@@ -147,14 +145,10 @@ public class Model3D {
             // Clean up
             bitmap.recycle();
         }
-        if (OpenGL.DEBUG) Log.d("DEBUG", "end loadGLTexture");
     }
 
     //use for lightweight task
     public void loadGLTexture(Context context, int id) {
-
-        if (OpenGL.DEBUG) Log.d("DEBUG", "start loadGLTexture");
-
         // loading texture
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), id);
 
@@ -169,14 +163,9 @@ public class Model3D {
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
         // Clean up
         bitmap.recycle();
-
-
-        if (OpenGL.DEBUG) Log.d("DEBUG", "end loadGLTexture");
     }
 
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
-
-        if (OpenGL.DEBUG) Log.d("DEBUG", "start updateGeometryAndUVs");
 
         MyGLRenderer.checkGlError("updateGeometryAndUVs");
         geometryCoords = GeometryCoords;
@@ -211,14 +200,10 @@ public class Model3D {
         uvBuffer.put(uvCoords);
         uvBuffer.position(0);
 
-        if (OpenGL.DEBUG) Log.d("DEBUG", "end updateGeometryAndUVs");
-
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
     }
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
-
-        if (OpenGL.DEBUG) Log.d("DEBUG", "start draw");
 
         float[] model = new float[16];
         float[] temp = new float[16];
@@ -271,7 +256,6 @@ public class Model3D {
 
     public void loadFromOBJ(Context context, String filename) {
 
-        if (OpenGL.DEBUG) Log.d("DEBUG", "start loadFromOBJ");
         OBJParser objparser = new OBJParser();
         objparser.loadFromOBJ(context, filename);
         float[] SquareCoords = objparser.getVertices();
@@ -280,7 +264,6 @@ public class Model3D {
 
         this.updateGeometryAndUVs(SquareCoords, UVCoords, DrawOrder);
 
-        if (OpenGL.DEBUG) Log.d("DEBUG", "end loadFromOBJ");
     }
 
     public void scale(Vector3 scale) {
@@ -312,5 +295,13 @@ public class Model3D {
                 return _angleZ;
         }
         return _x;
+    }
+
+    // red, green, blue and alpha from 0 to 255
+    public void setColor(int r,int g,int b,int a){
+        color[0]= r/255f;
+        color[1]= g/255f;
+        color[2]= b/255f;
+        color[3]= a/255f;
     }
 }

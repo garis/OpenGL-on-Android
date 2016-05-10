@@ -12,13 +12,13 @@ import java.util.List;
 
 public class OBJParser {
 
-    private float[] V = {            //vertices coords
-            -1.0f, 1.0f, 0.0f,   // top left
-            -1.0f, -1.0f, 0.0f,   // bottom left
-            1.0f, -1.0f, 0.0f,   // bottom right
-            1.0f, 1.0f, 0.0f}; // top right;
+    private float[] V = {
+            -1.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f};
 
-    private float[] VT = {        //texture coords
+    private float[] VT = {
             0.0f, 0.0f,
             0.0f, 1.0f,
             1.0f, 1.0f,
@@ -134,9 +134,7 @@ public class OBJParser {
 
         float x, y, z;
 
-        public Point() {
-
-        }
+        public Point() {}
 
         public Point(float valueX, float valueY, float valueZ) {
             x = valueX;

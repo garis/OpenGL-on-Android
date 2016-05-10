@@ -9,34 +9,16 @@ import android.view.WindowManager;
 
 public class OpenGL extends AppCompatActivity {
 
-    public static boolean DEBUG = false;
-
     private GLSurfaceView mGLView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        hideUIStuff();
-
         mGLView = new MyGLSurfaceView(this);
         setContentView(mGLView);
 
         mGLView.setPreserveEGLContextOnPause(true);
-    }
-
-    private void hideUIStuff() {
-        /*
-        View decorView = getWindow().getDecorView();
-
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE|
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-              /*  View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);*/
     }
 
     @Override
@@ -49,9 +31,6 @@ public class OpenGL extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        hideUIStuff();
-
         // The following call resumes a paused rendering thread.
         mGLView.onResume();
     }
