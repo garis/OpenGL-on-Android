@@ -1,0 +1,159 @@
+package theugateam.progetto.Utils;
+
+import android.content.Context;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class OBJParser {
+
+    private float[] V = {            //vertices coords
+            -1.0f, 1.0f, 0.0f,   // top left
+            -1.0f, -1.0f, 0.0f,   // bottom left
+            1.0f, -1.0f, 0.0f,   // bottom right
+            1.0f, 1.0f, 0.0f}; // top right;
+
+    private float[] VT = {        //texture coords
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f};
+
+    private int F[] = {0, 1, 2, 0, 2, 3}; // order to draw vertices
+
+    private List<String> file;
+
+    public OBJParser() {
+    }
+
+    public boolean loadFromOBJ(Context context, String name) {
+        BufferedReader br = null;
+        String sCurrentLine;
+        file = new ArrayList<>();
+        boolean flag = false;
+
+        try {
+            InputStream is = context.getAssets().open(name + ".obj");
+            InputStreamReader inputStreamReader = new InputStreamReader(is);
+
+            br = new BufferedReader(inputStreamReader);
+            while ((sCurrentLine = br.readLine()) != null) {
+                if ((sCurrentLine.length() >= 1) && (sCurrentLine.charAt(0) != '#')) {
+                    file.add(sCurrentLine);
+                }
+            }
+            flag = true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return flag;
+    }
+
+    private void createVertices() {
+        List<Point> VList = new ArrayList<>();
+        List<Point> VTList = new ArrayList<>();
+        List<Integer> f0List = new ArrayList<>();
+        List<Integer> f1List = new ArrayList<>();
+
+        for (String aFile : file) {
+            String[] str = aFile.split("\\s+");
+
+            if (str[0].length() == 1) {
+                if (str[0].charAt(0) == 'v') {
+                    VList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), Float.parseFloat(str[3])));
+                } else if (str[0].charAt(0) == 'f') {
+                    for (int i = 1; i < str.length; i++) {
+                        String[] item = str[i].split("/");
+                        //vertex
+                        f0List.add(Integer.parseInt(item[0]) - 1);
+                        //uv and max index
+                        f1List.add(Integer.parseInt(item[1]) - 1);
+                    }
+                }
+            } else if ((str[0].length() == 2) && (str[0].charAt(0) == 'v') && (str[0].charAt(1) == 't')) {
+                VTList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), 0));
+            }
+        }
+
+        V = new float[f0List.size() * 3];
+        VT = new float[f0List.size() * 2];
+        F = new int[f0List.size()];
+
+        Iterator<Integer> iterator0 = f0List.iterator();
+        Iterator<Integer> iterator1 = f1List.iterator();
+
+        int countV = 0;
+        int countVT = 0;
+        int count0 = 0;
+        while (iterator0.hasNext()) {
+            int n0 = iterator0.next();
+            int n1 = iterator1.next();
+
+            V[countV++] = VList.get(n0).getX();
+            V[countV++] = VList.get(n0).getY();
+            V[countV++] = VList.get(n0).getZ();
+
+            VT[countVT++] = VTList.get(n1).getX();
+            VT[countVT++] = 1 - VTList.get(n1).getY();
+            //OBJ considers (0, 0) to be the top left of a texture, OpenGL considers it to be the bottom left
+
+
+            F[count0] = count0;
+            count0++;
+        }
+    }
+
+
+    public float[] getVertices() {
+        createVertices();
+        return V;
+    }
+
+    public float[] getUVVertices() {
+        return VT;
+    }
+
+    public int[] getOrder() {
+        return F;
+    }
+
+    class Point {
+
+        float x, y, z;
+
+        public Point() {
+
+        }
+
+        public Point(float valueX, float valueY, float valueZ) {
+            x = valueX;
+            y = valueY;
+            z = valueZ;
+        }
+
+        public float getX() {
+            return x;
+        }
+
+        public float getY() {
+            return y;
+        }
+
+        public float getZ() {
+            return z;
+        }
+    }
+}
