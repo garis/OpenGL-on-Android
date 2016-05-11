@@ -89,6 +89,10 @@ public class Model3D {
     private float _angleY;
     private float _angleZ;
 
+    private int[] coordsVBO = new int[1];
+    private int[] uvVBO = new int[1];
+    private int[] indexVBO = new int[1];
+
     public Model3D() {
         // prepare shaders and OpenGL program
         int vertexShader = MyGLRenderer.loadShader(
@@ -102,7 +106,7 @@ public class Model3D {
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
 
         //initialize as a square
-        updateGeometryAndUVs(geometryCoords, uvCoords, drawOrder);
+        //updateGeometryAndUVs(geometryCoords, uvCoords, drawOrder);
 
         _x = 0;
         _y = 0;
@@ -121,9 +125,15 @@ public class Model3D {
         MyGLRenderer.checkGlError("start updatePointerVariables");
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");    // get handle to vertex shader's vPosition member
         colorUniformHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
-        textureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_texCoord");
         textureUniformHandle = GLES20.glGetUniformLocation(mProgram, "s_texture");
+        textureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_texCoord");
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");//get handle to shape's transformation matrix
+
+        //VBO stuffs
+        GLES20.glGenBuffers(1, coordsVBO, 0);
+        GLES20.glGenBuffers(1, uvVBO, 0);
+        GLES20.glGenBuffers(1, indexVBO, 0);
+
         MyGLRenderer.checkGlError("end updatePointerVariables");
     }
 
@@ -165,6 +175,7 @@ public class Model3D {
         bitmap.recycle();
     }
 
+    private boolean flag=false;
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
 
         MyGLRenderer.checkGlError("updateGeometryAndUVs");
@@ -199,10 +210,94 @@ public class Model3D {
         uvBuffer = bb.asFloatBuffer();
         uvBuffer.put(uvCoords);
         uvBuffer.position(0);
+            flag=true;
+
+        //
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, coordsVBO[0]);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexBuffer.capacity()
+                * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        //
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, uvBuffer.capacity()
+                * 4, uvBuffer, GLES20.GL_STATIC_DRAW);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        //
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
+        GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, drawListBuffer.capacity()
+                * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
     }
 
+    //IT'S AN ALPHA DRAW (PRE-BETA)
+    public void drawALPHA(float[] mViewMatrix, float[] mProjectionMatrix) {
+        float[] model = new float[16];
+        float[] temp = new float[16];
+        float[] mvpMatrix = new float[16];
+
+        Matrix.setIdentityM(model, 0); // initialize to identity matrix
+
+        Matrix.translateM(model, 0, _x, _y, _z);
+
+        Matrix.scaleM(model, 0, _scaleX, _scaleY, _scaleZ);
+
+        Matrix.rotateM(model, 0, _angleX, 1, 0, 0);
+        Matrix.rotateM(model, 0, _angleY, 0, 1, 0);
+        Matrix.rotateM(model, 0, _angleZ, 0, 0, 1);
+
+        Matrix.multiplyMM(temp, 0, mViewMatrix, 0, model, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, temp, 0);
+
+        MyGLRenderer.checkGlError("draw");
+        // Add program to OpenGL environment
+        GLES20.glUseProgram(mProgram);
+        MyGLRenderer.checkGlError("draw");
+
+        //coords
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, coordsVBO[0]);
+        GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, 0);
+        MyGLRenderer.checkGlError("coords");
+
+        //texture
+        GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
+        GLES20.glVertexAttribPointer(textureCoordinateHandle, 4, GLES20.GL_FLOAT, false, 0, 0);
+        MyGLRenderer.checkGlError("texture");
+
+        //color
+        GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
+
+        //MATRIX AND TEXTURE
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);//Apply the projection and view transformation
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        GLES20.glUniform1i(textureUniformHandle, 0);
+
+        // Draw the arrays
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        // glDrawElements(GL_TRIANGLE_STRIP, sizeof(indices)/sizeof(GLubyte), GL_UNSIGNED_BYTE, (void*)0);
+        //https://developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_vertexdata/opengl_vertexdata.html*/
+
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, 0);//Draw
+
+           // Log.d("DEBUG","pos "+mPositionHandle+" text "+textureCoordinateHandle);
+
+        //Disable the arrays as needed
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(textureCoordinateHandle);
+
+        MyGLRenderer.checkGlError("draw");
+
+    }
+
+    //this draw methods works
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
         float[] model = new float[16];
@@ -225,13 +320,9 @@ public class Model3D {
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
 
-        MyGLRenderer.checkGlError("glGetAttribLocation");
-
         GLES20.glEnableVertexAttribArray(mPositionHandle);    //Enable a handle to the triangle vertices
 
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);    // Prepare the triangle coordinate data
-
-        MyGLRenderer.checkGlError("glGetUniformLocation");
 
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
 
@@ -243,15 +334,12 @@ public class Model3D {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
         GLES20.glUniform1i(textureUniformHandle, 0);
 
-        MyGLRenderer.checkGlError("glUniform1i");
-
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);//Apply the projection and view transformation
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, drawListBuffer);//Draw
 
         GLES20.glDisableVertexAttribArray(mPositionHandle);// Disable vertex array
-
-        MyGLRenderer.checkGlError("error on draw");
+        GLES20.glDisableVertexAttribArray(textureCoordinateHandle);// Disable vertex array
     }
 
     public void loadFromOBJ(Context context, String filename) {
@@ -298,10 +386,10 @@ public class Model3D {
     }
 
     // red, green, blue and alpha from 0 to 255
-    public void setColor(int r,int g,int b,int a){
-        color[0]= r/255f;
-        color[1]= g/255f;
-        color[2]= b/255f;
-        color[3]= a/255f;
+    public void setColor(int r, int g, int b, int a) {
+        color[0] = r / 255f;
+        color[1] = g / 255f;
+        color[2] = b / 255f;
+        color[3] = a / 255f;
     }
 }
