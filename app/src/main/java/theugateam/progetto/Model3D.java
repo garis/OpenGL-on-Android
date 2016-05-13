@@ -247,16 +247,34 @@ public class Model3D {
         GLES20.glDisableVertexAttribArray(textureCoordinateHandle);// Disable vertex array
     }
 
-    public void loadFromOBJ(Context context, String filename) {
+    float[] SquareCoords;
+    float[] UVCoords;
+    int[] DrawOrder;
 
+    public void loadFromOBJ(Context context, String filename) {
         OBJParser objparser = new OBJParser();
         objparser.loadFromOBJ(context, filename);
-        float[] SquareCoords = objparser.getVertices();
-        float[] UVCoords = objparser.getUVVertices();
-        int[] DrawOrder = objparser.getOrder();
-
+        SquareCoords = objparser.getVertices();
+        UVCoords = objparser.getUVVertices();
+        DrawOrder = objparser.getOrder();
         this.updateGeometryAndUVs(SquareCoords, UVCoords, DrawOrder);
+        SquareCoords=new float[0];
+        UVCoords=new  float[0];
+        DrawOrder=new int[0];
+    }
+    public void loadFromOBJThreaded(Context context, String filename) {
+        OBJParser objparser = new OBJParser();
+        objparser.loadFromOBJ(context, filename);
+        SquareCoords = objparser.getVertices();
+        UVCoords = objparser.getUVVertices();
+        DrawOrder = objparser.getOrder();
+    }
 
+    public void loadObjData(){
+        this.updateGeometryAndUVs(SquareCoords, UVCoords, DrawOrder);
+        SquareCoords=new float[0];
+        UVCoords=new  float[0];
+        DrawOrder=new int[0];
     }
 
     public void scale(Vector3 scale) {

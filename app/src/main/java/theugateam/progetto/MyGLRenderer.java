@@ -3,6 +3,7 @@ package theugateam.progetto;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -40,9 +41,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Model3D[] heads;
     private Model3D selectedHeads;
     private Vector3 startingRotation;
-    private Model3D loadingGear;
-    //private Model3DVBO loadingText;
-    private Model3D loadingText;
+    private Model3DVBO loadingGear;
+    private Model3DVBO loadingText;
     private long startTime;
     private long stateTime;
 
@@ -75,7 +75,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
 
-        loadingGear = new Model3D();
+        loadingGear = new Model3DVBO();
         loadingGear.loadFromOBJ(context, "gear");
         loadingGear.loadGLTexture(context, R.drawable.white);
         loadingGear.scale(new Vector3(1.6, 1.6, 1.6));
@@ -83,8 +83,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         loadingGear.rotate(new Vector3(0, 0, 0));
         loadingGear.setColor(255, 76, 59,255);
 
-        //loadingText = new Model3DVBO();
-        loadingText = new Model3D();
+        loadingText = new Model3DVBO();
         loadingText.loadFromOBJ(context, "loading");
         loadingText.loadGLTexture(context, R.drawable.white);
         loadingText.scale(new Vector3(2.7, 2.7, 2.7));
@@ -94,22 +93,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         LoadingThread loadingThread = new LoadingThread();
 
-        selectedHeads = new Model3D();
-        heads = new Model3D[3];
+        selectedHeads = new Model3DVBO();
+        heads = new Model3DVBO[3];
 
-        heads[0] = new Model3D();
+        heads[0] = new Model3DVBO();
         heads[0].scale(new Vector3(2, 2, 2));
         heads[0].move(new Vector3(-10, 0, 0));
         heads[0].rotate(new Vector3(90, 0, 0));
         loadingThread.loadObject(new LoadingInfo(heads[0], "mobius", R.drawable.mobius));
 
-        heads[1] = new Model3D();
+        heads[1] = new Model3DVBO();
         heads[1].scale(new Vector3(0.9, 0.9, 0.9));
         heads[1].move(new Vector3(0, 0, 0));
         heads[1].rotate(new Vector3(90, 0, 0));
         loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
 
-        heads[2] = new Model3D();
+        heads[2] = new Model3DVBO();
         heads[2].scale(new Vector3(1.5, 1.5, 1.5));
         heads[2].move(new Vector3(10, 0, 0));
         heads[2].rotate(new Vector3(90, 0, 0));
@@ -128,8 +127,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
             //the texture must be loaded on the GLThread not from some others thread
             case APPLYING_TEXTURE:
-                for (i = 0; i < heads.length; i++)
+                for (i = 0; i < heads.length; i++) {
+                    heads[i].loadObjData();
                     heads[i].loadFromSavedBitmap();
+                }
                 changeState(STATUS.DRAWING);
                 break;
 
@@ -142,7 +143,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        GLES20.glClearColor(0, 0, 0.0f, 1.0f);
+        GLES20.glClearColor(0, 0, 1.0f, 1.0f);
 
         update();
 
@@ -215,7 +216,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
 
         public void load() {
-            head.loadFromOBJ(context, objFile);
+            head.loadFromOBJThreaded(context, objFile);
             head.saveBitmap(context, texture);
         }
     }

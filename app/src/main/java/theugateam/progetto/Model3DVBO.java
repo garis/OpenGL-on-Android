@@ -41,21 +41,26 @@ public class Model3DVBO extends Model3D{
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexBuffer.capacity()
                 * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        coordssize=vertexBuffer.capacity();
 
         //
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, uvBuffer.capacity()
                 * 4, uvBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        uvsSize=uvBuffer.capacity();
 
         //
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, drawListBuffer.capacity()
                 * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+        drawListBufferCapacity=drawListBuffer.capacity();
 
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
     }
+
+    int coordssize;int uvsSize;
 
     //IT'S AN ALPHA DRAW (PRE-BETA)
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
@@ -79,22 +84,18 @@ public class Model3DVBO extends Model3D{
         Matrix.multiplyMM(temp, 0, mViewMatrix, 0, model, 0);
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, temp, 0);
 
-        //MyGLRenderer.checkGlError("draw");
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
-        //MyGLRenderer.checkGlError("draw");
 
         //coords
-        GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, coordsVBO[0]);
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, 0);
-        //MyGLRenderer.checkGlError("coords");
 
         //texture
-        GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
-        GLES20.glVertexAttribPointer(textureCoordinateHandle, 4, GLES20.GL_FLOAT, false, 0, 0);
-        //MyGLRenderer.checkGlError("texture");
+        GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
+        GLES20.glVertexAttribPointer(textureCoordinateHandle, 2, GLES20.GL_FLOAT, false, 0, 0);
 
         //color
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
@@ -105,21 +106,19 @@ public class Model3DVBO extends Model3D{
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
         GLES20.glUniform1i(textureUniformHandle, 0);
-       // MyGLRenderer.checkGlError("texture");
-        // Draw the arrays
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-        // glDrawElements(GL_TRIANGLE_STRIP, sizeof(indices)/sizeof(GLubyte), GL_UNSIGNED_BYTE, (void*)0);
+
         //https://developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_vertexdata/opengl_vertexdata.html*/
 
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, indexVBO[0]);//Draw
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, 0);//Draw
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        // Log.d("DEBUG","pos "+mPositionHandle+" text "+textureCoordinateHandle);
-
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
         //Disable the arrays as needed
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(textureCoordinateHandle);
 
-        //MyGLRenderer.checkGlError("draw");
+        //for testing
+        MyGLRenderer.checkGlError("draw");
     }
 }
