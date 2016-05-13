@@ -41,6 +41,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Model3D selectedHeads;
     private Vector3 startingRotation;
     private Model3D loadingGear;
+    //private Model3DVBO loadingText;
     private Model3D loadingText;
     private long startTime;
     private long stateTime;
@@ -82,6 +83,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         loadingGear.rotate(new Vector3(0, 0, 0));
         loadingGear.setColor(255, 76, 59,255);
 
+        //loadingText = new Model3DVBO();
         loadingText = new Model3D();
         loadingText.loadFromOBJ(context, "loading");
         loadingText.loadGLTexture(context, R.drawable.white);
@@ -140,7 +142,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        GLES20.glClearColor(0, 0, 1.0f, 1.0f);
+        GLES20.glClearColor(0, 0, 0.0f, 1.0f);
 
         update();
 
