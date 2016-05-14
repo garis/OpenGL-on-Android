@@ -38,8 +38,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float ZFar;
     private Vector3 touchDownCoords;
     private Camera camera;
-    private Model3D[] heads;
-    private Model3D selectedHeads;
+    private Model3DVBO[] heads;
+    private Model3DVBO selectedHeads;
     private Vector3 startingRotation;
     private Model3DVBO loadingGear;
     private Model3DVBO loadingText;

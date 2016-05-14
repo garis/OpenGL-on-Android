@@ -41,28 +41,22 @@ public class Model3DVBO extends Model3D{
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexBuffer.capacity()
                 * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-        coordssize=vertexBuffer.capacity();
 
         //
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, uvBuffer.capacity()
                 * 4, uvBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
-        uvsSize=uvBuffer.capacity();
 
         //
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, drawListBuffer.capacity()
                 * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-        drawListBufferCapacity=drawListBuffer.capacity();
 
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
     }
 
-    int coordssize;int uvsSize;
-
-    //IT'S AN ALPHA DRAW (PRE-BETA)
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
         MyGLRenderer.checkGlError("pre draw");
