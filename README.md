@@ -21,4 +21,4 @@ www.wikipedia.org/wiki/Wavefront_.obj_file
 3. ottimizzare OBJParser
 4. www.learnopengles.com/tag/vbos/
 5. www.khronos.org/registry/gles/specs/2.0/es_full_spec_2.0.25.pdf
-6. www.developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html soprattutto da "Listing 8-3" in poi.
+6. www.developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html soprattutto da "Listing 8-3" in poi e www.developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_vertexdata/opengl_vertexdata.html.
