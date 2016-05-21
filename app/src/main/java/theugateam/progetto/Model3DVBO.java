@@ -30,6 +30,7 @@ public class Model3DVBO extends Model3D{
 
         MyGLRenderer.checkGlError("updatePointerVariables");
 
+        objectState=OBJECT_STATUS.INITIALIZED;
     }
 
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
@@ -55,6 +56,8 @@ public class Model3DVBO extends Model3D{
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
+
+        objectState=OBJECT_STATUS.LOADING_TEXTURE;
     }
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {

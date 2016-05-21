@@ -29,6 +29,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         LOADING, APPLYING_TEXTURE, DRAWING
     }
 
+    //TODO
+    /*
+    sistemare le cose che settano OBJECT_STATUS in giro
+    e discutere se questo sistema di loading va bene
+    ora: maggior CPU e RAM (anche 80 megabyte di picco) ma minor TEMPO
+    prima: minor CPU e RAM (30 megabyte di picco) ma maggior TEMPO
+     */
+
     private static final String TAG = "MyGLRenderer";
     private final int ANGLE_MAGNITUDE = 360;
     private Context context;
@@ -91,7 +99,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         loadingText.rotate(new Vector3(0, 0, 0));
         loadingText.setColor(0, 114, 187,255);
 
-        LoadingThread loadingThread = new LoadingThread();
+       // LoadingThread loadingThread = new LoadingThread();
 
         selectedHeads = new Model3DVBO();
         heads = new Model3DVBO[3];
@@ -100,20 +108,44 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[0].scale(new Vector3(2, 2, 2));
         heads[0].move(new Vector3(-10, 0, 0));
         heads[0].rotate(new Vector3(90, 0, 0));
-        loadingThread.loadObject(new LoadingInfo(heads[0], "mobius", R.drawable.mobius));
+        //loadingThread.loadObject(new LoadingInfo(heads[0], "mobius", R.drawable.mobius));
+        Thread thread0 = new Thread(){
+            public void run(){
+                heads[0].loadFromOBJThreaded(context, "mobius");
+                heads[0].saveBitmap(context, R.drawable.mobius);
+            }
+        };
+
+        thread0.start();
 
         heads[1] = new Model3DVBO();
         heads[1].scale(new Vector3(0.9, 0.9, 0.9));
         heads[1].move(new Vector3(0, 0, 0));
         heads[1].rotate(new Vector3(90, 0, 0));
-        loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
+        //loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
+        Thread thread1 = new Thread(){
+            public void run(){
+                heads[1].loadFromOBJThreaded(context, "pigna");
+                heads[1].saveBitmap(context, R.drawable.tex);
+            }
+        };
+
+        thread1.start();
 
         heads[2] = new Model3DVBO();
         heads[2].scale(new Vector3(1.5, 1.5, 1.5));
         heads[2].move(new Vector3(10, 0, 0));
         heads[2].rotate(new Vector3(90, 0, 0));
-        loadingThread.loadObject(new LoadingInfo(heads[2], "kleinbottle", R.drawable.kleinbottle));
-        loadingThread.start();
+        //loadingThread.loadObject(new LoadingInfo(heads[2], "kleinbottle", R.drawable.kleinbottle));
+        Thread thread2 = new Thread(){
+            public void run(){
+                heads[2].loadFromOBJThreaded(context, "kleinbottle");
+                heads[2].saveBitmap(context,  R.drawable.kleinbottle);
+            }
+        };
+
+        thread2.start();
+        //loadingThread.start();
     }
 
     public void update() {
@@ -123,15 +155,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
             case LOADING:
                 loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), stateTime * 0.1f));
+                boolean flag=true;
+                for (i = 0; i < heads.length; i++) {
+                    if(heads[i].state()== Model3D.OBJECT_STATUS.REQUEST_LOAD_TEXTURE)
+                    {
+                        Log.d("DEBUG","LOADING"+i);
+                        heads[i].loadObjData();
+                        heads[i].loadFromSavedBitmap();
+                    }
+                    else if(heads[i].state()!= Model3D.OBJECT_STATUS.COMPLETE)
+                        flag=false;
+                }
+                if(flag)
+                    changeState(STATUS.DRAWING);
                 break;
 
             //the texture must be loaded on the GLThread not from some others thread
             case APPLYING_TEXTURE:
-                for (i = 0; i < heads.length; i++) {
+                /*for (i = 0; i < heads.length; i++) {
                     heads[i].loadObjData();
                     heads[i].loadFromSavedBitmap();
                 }
-                changeState(STATUS.DRAWING);
+                changeState(STATUS.DRAWING);*/
                 break;
 
             case DRAWING:
@@ -183,7 +228,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
         }
     }
-
+/*
     class LoadingThread extends Thread {
         ArrayList<LoadingInfo> objects;
 
@@ -203,7 +248,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             changeState(STATUS.APPLYING_TEXTURE);
         }
     }
-
+*/
+    /*
     class LoadingInfo {
         public Model3D head;
         public String objFile;
@@ -220,6 +266,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             head.saveBitmap(context, texture);
         }
     }
+*/
 
     //region user touch action
 

@@ -21,6 +21,12 @@ import theugateam.progetto.Utils.Vector3;
  */
 public class Model3D {
 
+
+    public static enum OBJECT_STATUS {
+        INITIALIZED,LOADING_OBJ,REQUEST_LOAD_OBJ, LOADING_TEXTURE, REQUEST_LOAD_TEXTURE, COMPLETE
+    }
+
+    protected OBJECT_STATUS objectState;
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     private final String vertexShaderCode =
@@ -127,6 +133,8 @@ public class Model3D {
 
     public void saveBitmap(Context context, int id) {
         bitmap = BitmapFactory.decodeResource(context.getResources(), id);
+
+        objectState=OBJECT_STATUS.REQUEST_LOAD_TEXTURE;
     }
 
     public void loadFromSavedBitmap() {
@@ -144,6 +152,8 @@ public class Model3D {
             bitmap.recycle();
         }
         MyGLRenderer.checkGlError("loadFromSavedBitmap");
+
+        objectState=OBJECT_STATUS.COMPLETE;
     }
 
     //use for lightweight task
@@ -163,6 +173,8 @@ public class Model3D {
         // Clean up
         bitmap.recycle();
         MyGLRenderer.checkGlError("loadGLTexture");
+
+        objectState=OBJECT_STATUS.COMPLETE;
     }
 
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
@@ -201,6 +213,8 @@ public class Model3D {
         uvBuffer.position(0);
 
         MyGLRenderer.checkGlError("end updateGeometryAndUVs");
+
+        objectState=OBJECT_STATUS.LOADING_TEXTURE;
     }
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
@@ -261,6 +275,8 @@ public class Model3D {
         SquareCoords=new float[0];
         UVCoords=new  float[0];
         DrawOrder=new int[0];
+
+        objectState=OBJECT_STATUS.COMPLETE;
     }
     public void loadFromOBJThreaded(Context context, String filename) {
         OBJParser objparser = new OBJParser();
@@ -268,6 +284,8 @@ public class Model3D {
         SquareCoords = objparser.getVertices();
         UVCoords = objparser.getUVVertices();
         DrawOrder = objparser.getOrder();
+
+        objectState=OBJECT_STATUS.REQUEST_LOAD_OBJ;
     }
 
     public void loadObjData(){
@@ -275,6 +293,8 @@ public class Model3D {
         SquareCoords=new float[0];
         UVCoords=new  float[0];
         DrawOrder=new int[0];
+
+        objectState=OBJECT_STATUS.LOADING_TEXTURE;
     }
 
     public void scale(Vector3 scale) {
@@ -314,5 +334,9 @@ public class Model3D {
         color[1] = g / 255f;
         color[2] = b / 255f;
         color[3] = a / 255f;
+    }
+
+    public OBJECT_STATUS state(){
+        return objectState;
     }
 }
