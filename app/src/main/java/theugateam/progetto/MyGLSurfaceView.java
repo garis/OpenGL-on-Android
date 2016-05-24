@@ -2,6 +2,7 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import theugateam.progetto.Utils.Vector3;
@@ -26,13 +27,15 @@ public class MyGLSurfaceView extends GLSurfaceView {
         mRenderer.initialize(context);
         setRenderer(mRenderer);
 
-        // Render the view only when there is a change in the drawing data
+        // Render continuosly per poter usare l'ingranaggio di caricamento
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        if (e.getPointerCount() == 1) {
+        //Log.d("debug", "" + e.getPointerCount());
+        if (e.getPointerCount() == 1)
+        {
             switch (e.getAction()) {
                 case MotionEvent.ACTION_MOVE:
                     mRenderer.touchMove(new Vector3(e.getX(), e.getY(), 0));
@@ -44,6 +47,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     break;
             }
         }
+        else if(e.getPointerCount() == 2)
+        {
+            mRenderer.zoom( new Vector3(e.getX(e.getPointerId(0)), e.getY(e.getPointerId(0)), 0),
+                            new Vector3(e.getX(e.getPointerId(1)), e.getY(e.getPointerId(1)), 0));
+        }
+
         return true;
     }
 

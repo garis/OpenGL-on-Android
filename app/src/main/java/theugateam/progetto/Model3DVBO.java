@@ -8,6 +8,15 @@ import java.nio.ByteOrder;
 
 /**
  * Created by riccardo on 13/05/16.
+ *
+ *
+ * questa sovrascrittura della classe Model3D implementa i vertex buffer
+ * object (VBO) invece dei buffer residenti in ram
+ * permette di precaricare inizialmente i VertexBuffer in ram in modo da non
+ * doverlo rifare ogni volta che Draw() viene chiamata
+ * Avendo un modello che non varia nel tempo questa soluzione
+ * risulta più efficiente
+ *
  */
 public class Model3DVBO extends Model3D{
 
@@ -15,14 +24,17 @@ public class Model3DVBO extends Model3D{
     private int[] uvVBO;
     private int[] indexVBO;
 
+    @Override
     protected void updatePointerVariables() {
 
         super.updatePointerVariables();
 
+        // puntatori a buffer nella memoria di OpenGL
         coordsVBO = new int[1];
         uvVBO = new int[1];
         indexVBO = new int[1];
 
+        //genera i buffer, ed esegue un controllo errori
         //VBO stuffs
         GLES20.glGenBuffers(1, coordsVBO, 0);
         GLES20.glGenBuffers(1, uvVBO, 0);
@@ -30,9 +42,11 @@ public class Model3DVBO extends Model3D{
 
         MyGLRenderer.checkGlError("updatePointerVariables");
 
+        //variabile per avere lo stato dell'oggetto (utile in multithreading)
         objectState=OBJECT_STATUS.INITIALIZED;
     }
-
+    // carica la geometria tridimensionale (non disegna nulla ancora)
+    @Override
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
 
         super.updateGeometryAndUVs(GeometryCoords, UVCoords, DrawOrder);
@@ -59,7 +73,7 @@ public class Model3DVBO extends Model3D{
 
         objectState=OBJECT_STATUS.LOADING_TEXTURE;
     }
-
+    @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
         MyGLRenderer.checkGlError("pre draw");
@@ -118,4 +132,5 @@ public class Model3DVBO extends Model3D{
         //for testing
         MyGLRenderer.checkGlError("draw");
     }
+
 }

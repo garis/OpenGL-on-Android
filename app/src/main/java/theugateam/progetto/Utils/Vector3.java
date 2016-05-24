@@ -36,13 +36,23 @@ public class Vector3 {
 
     }
 
-    public double x() {
-        return xyz[0];
+
+    public void x(double newValue)
+    {
+        xyz[0] = newValue;
+    }
+    public void y(double newValue)
+    {
+        xyz[1] = newValue;
+    }
+    public void z(double newValue)
+    {
+        xyz[2] = newValue;
     }
 
-    public double y() {
-        return xyz[1];
-    }
+    public double x() { return xyz[0]; }
+
+    public double y() { return xyz[1]; }
 
     public double z() {
         return xyz[2];

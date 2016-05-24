@@ -23,12 +23,13 @@ public class Model3D {
 
 
     public static enum OBJECT_STATUS {
-        INITIALIZED,LOADING_OBJ,REQUEST_LOAD_OBJ, LOADING_TEXTURE, REQUEST_LOAD_TEXTURE, COMPLETE
+        INITIALIZED, LOADING_OBJ, REQUEST_LOAD_OBJ, LOADING_TEXTURE, REQUEST_LOAD_TEXTURE, COMPLETE
     }
-
+    protected String mName= "";
     protected OBJECT_STATUS objectState;
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
+    //Definisce il codice degli shader che verranno usati dal processore grafici
     private final String vertexShaderCode =
             /* This matrix member variable provides a hook to manipulate
              the coordinates of the objects that use this vertex shader*/
@@ -55,7 +56,7 @@ public class Model3D {
                     "void main() {" +
                     "gl_FragColor = vColor * texture2D( s_texture, v_texCoord );" +
                     "}";
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
+    private final int vertexStride = COORDS_PER_VERTEX * 0; //n° byte totale al caricamento riempirà la varibile con il valore corretto
     private final int UV_COORDS_PER_VERTEX = 2;
     float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
     Bitmap bitmap;
@@ -130,25 +131,24 @@ public class Model3D {
 
         MyGLRenderer.checkGlError("end updatePointerVariables");
     }
-
+    // trasferisce la Bitmap della Texture da file a memoria
     public void saveBitmap(Context context, int id) {
         bitmap = BitmapFactory.decodeResource(context.getResources(), id);
 
         objectState=OBJECT_STATUS.REQUEST_LOAD_TEXTURE;
     }
-
+    // copia il bitmap dalla emoria di Android a quella di OpenGL
     public void loadFromSavedBitmap() {
         if (bitmap != null) {
             // generate one texture pointer
             GLES20.glGenTextures(1, texture, 0);
             // ...and bind it to our array
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
-            //load texture
 
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-
+            //load texture
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-            // Clean up
+            // Clean up from Android memory
             bitmap.recycle();
         }
         MyGLRenderer.checkGlError("loadFromSavedBitmap");
@@ -303,6 +303,16 @@ public class Model3D {
         _scaleZ = (float) scale.z();
     }
 
+    public float getGlobalScale()
+    {
+        return _scaleX;
+    }
+
+    public void setGlobalScale(float newScale)
+    {
+        scale(new Vector3(newScale,newScale,newScale));
+    }
+
     public void move(Vector3 position) {
         _x = (float) position.x();
         _y = (float) position.y();
@@ -339,4 +349,16 @@ public class Model3D {
     public OBJECT_STATUS state(){
         return objectState;
     }
+
+    public void setName(String Name)
+    {
+        mName = Name;
+    }
+
+    @Override
+    public String toString()
+    {
+        return mName;
+    }
+
 }

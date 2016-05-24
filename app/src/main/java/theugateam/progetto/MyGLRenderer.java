@@ -76,8 +76,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         changeState(STATUS.LOADING);
         //z buffer
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-        GLES20.glDepthMask(true);
+        //GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        //GLES20.glDepthMask(true);
 
         camera = new Camera();
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
@@ -105,6 +105,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads = new Model3DVBO[3];
 
         heads[0] = new Model3DVBO();
+        heads[0].setName("nastro");
         heads[0].scale(new Vector3(2, 2, 2));
         heads[0].move(new Vector3(-10, 0, 0));
         heads[0].rotate(new Vector3(90, 0, 0));
@@ -119,6 +120,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         thread0.start();
 
         heads[1] = new Model3DVBO();
+        heads[1].setName("pigna");
         heads[1].scale(new Vector3(0.9, 0.9, 0.9));
         heads[1].move(new Vector3(0, 0, 0));
         heads[1].rotate(new Vector3(90, 0, 0));
@@ -133,6 +135,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         thread1.start();
 
         heads[2] = new Model3DVBO();
+        heads[2].setName("bottiglia");
         heads[2].scale(new Vector3(1.5, 1.5, 1.5));
         heads[2].move(new Vector3(10, 0, 0));
         heads[2].rotate(new Vector3(90, 0, 0));
@@ -159,6 +162,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 for (i = 0; i < heads.length; i++) {
                     if(heads[i].state()== Model3D.OBJECT_STATUS.REQUEST_LOAD_TEXTURE)
                     {
+                        // lo scatto eventuale dell'ingranaggio è dovuto a queste chiamate
+                        // che vanno eseguite nel mainThread come le funzioni di draw OpenGL
                         Log.d("DEBUG","LOADING"+i);
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
@@ -188,7 +193,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        GLES20.glClearColor(0, 0, 1.0f, 1.0f);
+        GLES20.glClearColor(0, 1.0f, 1.0f, 1.0f);
 
         update();
 
@@ -201,8 +206,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
             //the texture must be loaded on the GLThread not from some others thread
             case APPLYING_TEXTURE:
-                for (Model3D head : heads) head.loadFromSavedBitmap();
-                changeState(STATUS.DRAWING);
+                //for (Model3D head : heads) head.loadFromSavedBitmap();
+                //changeState(STATUS.DRAWING);
                 break;
 
             case DRAWING:
@@ -286,10 +291,48 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             startingRotation = new Vector3(selectedHeads.getRotation(0), selectedHeads.getRotation(1), selectedHeads.getRotation(2));
         }
     }
+    float scaleZoom;
+    float startZoomDist;
 
+    public void zoom(Vector3 punto1, Vector3 punto2)
+    {
+        //Log.d("debug", "tocco1 " + punto1.toString());
+        //Log.d("debug", "tocco2 " + punto2.toString());
+        //Log.d("debug", "########################");
+
+        //acquisisco il punto medio
+        if (STATE == STATUS.DRAWING) {
+            Vector3 mid_point = new Vector3(0, 0, 0);
+            mid_point.x((punto2.x() + punto1.x()) / 2.0f);
+            mid_point.y((punto2.y() + punto1.y()) / 2.0f);
+//            Log.d("debug", heads[1].toString()+ "\t" + heads[2].toString()+ "\t" + heads[3].toString() );
+            Log.d("debug", "**************************");
+            Log.d("debug", mid_point.x() + "");
+            if (mid_point.x() / camera.getScreenWidth() < 0.33f) {
+                selectedHeads = heads[0];
+            }
+            else if (mid_point.x() / camera.getScreenWidth() < 0.66f)
+                selectedHeads = heads[1];
+            else
+                selectedHeads = heads[2];
+
+            float dist = (float) Math.sqrt((Math.pow((punto1.y() - punto2.y()), 2) + Math.pow((punto1.x() - punto2.x()), 2)));
+            dist = dist / camera.getDiagonalLength();
+
+            if(scaleZoom < 0)
+            {
+                scaleZoom = selectedHeads.getGlobalScale();
+                //scaleZoom *= dist;
+                startZoomDist = dist;
+            }
+            selectedHeads.setGlobalScale(scaleZoom - (startZoomDist-dist)*9);
+        }
+    }
     //move the selected object
     public void touchMove(Vector3 screenCoords) {
-        if (STATE == STATUS.DRAWING && touchDownCoords!=null) {
+        scaleZoom = -1;
+        startZoomDist = -1;
+        if (STATE == STATUS.DRAWING /* && touchDownCoords!=null*/) {
             //get the angle between the touchDown and the current position tapped on the screen
             float angle = (float) Math.atan2((screenCoords.y() - touchDownCoords.y()), (screenCoords.x() - touchDownCoords.x()));
 
