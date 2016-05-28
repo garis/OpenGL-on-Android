@@ -12,7 +12,7 @@ public class Camera {
     private float _cameraLAZ;
 
     private float ScreenWidth;
-    private float ScreenHeight;
+    private float ScreenHeigth;
 
     private float[] ProjectionMatrix;
     private float[] InvertedProjectionMatrix;
@@ -38,12 +38,16 @@ public class Camera {
         ViewMatrix = new float[16];
 
         ScreenWidth = 0;
-        ScreenHeight = 0;
+        ScreenHeigth = 0;
         diagonalLength = 0;
     }
 
     public float getScreenWidth() {
         return ScreenWidth;
+    }
+
+    public float getScreenHeigth() {
+        return ScreenHeigth;
     }
 
     public void setCameraLookAt(Vector3 lookAt) {
@@ -62,10 +66,10 @@ public class Camera {
 
     public void setProjectionMatrix(float screenWidth, float screenHeight, float ZNear, float ZFar) {
         ScreenWidth = screenWidth;
-        ScreenHeight = screenHeight;
-        float ratio = ScreenWidth / ScreenHeight;
+        ScreenHeigth = screenHeight;
+        float ratio = ScreenWidth / ScreenHeigth;
         Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
-        diagonalLength = (float) Math.sqrt((Math.pow(ScreenWidth, 2) + Math.pow(ScreenHeight, 2)));
+        diagonalLength = (float) Math.sqrt((Math.pow(ScreenWidth, 2) + Math.pow(ScreenHeigth, 2)));
     }
 
     private void setViewMatrix() {

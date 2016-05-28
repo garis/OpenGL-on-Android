@@ -326,6 +326,12 @@ public class Model3D {
         _angleZ = (float) rotationVector.z();
     }
 
+    public void addRotate(Vector3 rotationVector) {
+        _angleX += (float) rotationVector.x();
+        _angleY += (float) rotationVector.y();
+        _angleZ += (float) rotationVector.z();
+    }
+
     public float getRotation(int n) {
         switch (n) {
             case 0:

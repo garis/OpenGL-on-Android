@@ -3,10 +3,7 @@ package theugateam.progetto;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.util.Log;
-
-import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -51,8 +48,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Vector3 startingRotation;
     private Model3DVBO loadingGear;
     private Model3DVBO loadingText;
-    private long startTime;
-    private long stateTime;
+    private float startTime;
+    private float stateTime;
 
     public void initialize(Context androidContext) {
         context = androidContext;
@@ -152,12 +149,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public void update() {
-        stateTime = System.currentTimeMillis() - startTime;
+        stateTime =  (float)System.nanoTime()/10000000f - startTime;
 
         switch (STATE) {
 
             case LOADING:
-                loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), stateTime * 0.1f));
+                loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), stateTime));
                 boolean flag=true;
                 for (i = 0; i < heads.length; i++) {
                     if(heads[i].state()== Model3D.OBJECT_STATUS.REQUEST_LOAD_TEXTURE)
@@ -220,7 +217,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void changeState(STATUS status) {
         STATE = status;
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime()/10000000f;
         switch (status) {
 
             case LOADING:
@@ -333,7 +330,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         scaleZoom = -1;
         startZoomDist = -1;
         if (STATE == STATUS.DRAWING /* && touchDownCoords!=null*/) {
-            //get the angle between the touchDown and the current position tapped on the screen
+            //this is BEFORE a bit of thinking
+
+            /*//get the angle between the touchDown and the current position tapped on the screen
             float angle = (float) Math.atan2((screenCoords.y() - touchDownCoords.y()), (screenCoords.x() - touchDownCoords.x()));
 
             //distance of actual touch and first touch down
@@ -346,7 +345,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             //magic number to decide how much rotation to give
             Vector3 angleVector = new Vector3(Math.sin(angle) * ANGLE_MAGNITUDE * dist, Math.cos(angle) * ANGLE_MAGNITUDE * dist, 0);
 
-            selectedHeads.rotate(new Vector3(angleVector.x(), 0, -angleVector.y()).add(startingRotation));
+            //selectedHeads.rotate(new Vector3(angleVector.x(), 0, -angleVector.y()).add(startingRotation));
+            selectedHeads.addRotate(new Vector3(angleVector.x(), 0, -angleVector.y()).add(startingRotation));
+            touchDownCoords=screenCoords;*/
+
+            //this is AFTER a bit of thinking
+            Vector3 vector = new Vector3(
+                    (screenCoords.y()-touchDownCoords.y())/camera.getScreenWidth() * ANGLE_MAGNITUDE,
+                    0,
+                    -(screenCoords.x()-touchDownCoords.x())/camera.getScreenHeigth() * ANGLE_MAGNITUDE);
+
+            selectedHeads.addRotate(vector);
+            touchDownCoords=screenCoords;
         }
     }
     //endregion

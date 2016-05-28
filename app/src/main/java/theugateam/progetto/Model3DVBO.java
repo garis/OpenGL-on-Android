@@ -3,9 +3,6 @@ package theugateam.progetto;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 /**
  * Created by riccardo on 13/05/16.
  *
@@ -18,7 +15,7 @@ import java.nio.ByteOrder;
  * risulta più efficiente
  *
  */
-public class Model3DVBO extends Model3D{
+public class Model3DVBO extends Model3D {
 
     private int[] coordsVBO;
     private int[] uvVBO;
