@@ -29,33 +29,6 @@ public class Model3D {
     protected OBJECT_STATUS objectState;
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
-    //Definisce il codice degli shader che verranno usati dal processore grafici
-    private final String vertexShaderCode =
-            /* This matrix member variable provides a hook to manipulate
-             the coordinates of the objects that use this vertex shader*/
-            "uniform mat4 uMVPMatrix;" +
-                    "attribute vec4 vPosition;" +
-            /*texture location as input*/
-                    "attribute vec2 a_texCoord;" +
-            /*...and gives it to the fragment shader */
-                    "varying vec2 v_texCoord;" +
-                    "void main() {" +
-                /*
-                The matrix must be included as a modifier of gl_Position.
-                Note that the uMVPMatrix factor *must be first* in order
-                for the matrix multiplication product to be correct.
-                */
-                    "gl_Position = uMVPMatrix * vPosition;" +
-                    "v_texCoord = a_texCoord;" +
-                    "}";
-    private final String fragmentShaderCode =
-            "precision mediump float;" +
-                    "varying vec2 v_texCoord;" +
-                    "uniform sampler2D s_texture;" +
-                    "uniform vec4 vColor;" +
-                    "void main() {" +
-                    "gl_FragColor = vColor * texture2D( s_texture, v_texCoord );" +
-                    "}";
     private final int vertexStride = COORDS_PER_VERTEX * 0; //n° byte totale al caricamento riempirà la varibile con il valore corretto
     private final int UV_COORDS_PER_VERTEX = 2;
     float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -96,12 +69,12 @@ public class Model3D {
     protected float _angleY;
     protected float _angleZ;
 
-    public Model3D() {
+    public Model3D(Context context) {
         // prepare shaders and OpenGL program
         int vertexShader = MyGLRenderer.loadShader(
-                GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+                GLES20.GL_VERTEX_SHADER, MyGLRenderer.readTextFileFromResource(context,R.raw.vertexshader));
         int fragmentShader = MyGLRenderer.loadShader(
-                GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+                GLES20.GL_FRAGMENT_SHADER,  MyGLRenderer.readTextFileFromResource(context,R.raw.fragmentshader));
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program

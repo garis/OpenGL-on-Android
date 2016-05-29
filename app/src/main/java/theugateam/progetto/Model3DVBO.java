@@ -1,5 +1,6 @@
 package theugateam.progetto;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
@@ -21,6 +22,9 @@ public class Model3DVBO extends Model3D {
     private int[] uvVBO;
     private int[] indexVBO;
 
+    public Model3DVBO(Context context){
+        super(context);
+    }
     @Override
     protected void updatePointerVariables() {
 
