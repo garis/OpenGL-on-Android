@@ -130,7 +130,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         //loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "mobius");
+                heads[1].loadFromOBJThreaded(context, "pigna");
                 heads[1].saveBitmap(context, R.drawable.tex);
             }
         };
@@ -145,7 +145,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         //loadingThread.loadObject(new LoadingInfo(heads[2], "kleinbottle", R.drawable.kleinbottle));
         Thread thread2 = new Thread() {
             public void run() {
-                heads[2].loadFromOBJThreaded(context, "mobius");
+                heads[2].loadFromOBJThreaded(context, "kleinbottle");
                 heads[2].saveBitmap(context, R.drawable.kleinbottle);
             }
         };
@@ -219,7 +219,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeState(STATUS status) {
+    private void changeState(STATUS status) {
         STATE = status;
         startTime = System.nanoTime() / 10000000f;
         switch (status) {
@@ -233,6 +233,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case DRAWING:
                 break;
         }
+    }
+
+    public STATUS getState() {
+        return STATE;
     }
 /*
     class LoadingThread extends Thread {

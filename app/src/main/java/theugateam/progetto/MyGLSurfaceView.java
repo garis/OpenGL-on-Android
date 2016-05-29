@@ -49,17 +49,20 @@ public class MyGLSurfaceView extends GLSurfaceView {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
-        // Let the ScaleGestureDetector inspect all events.
+        if(mRenderer.getState()== MyGLRenderer.STATUS.DRAWING) {
+            // Let the ScaleGestureDetector inspect all events.
 
-        mScaleDetector.onTouchEvent(e);
+            mScaleDetector.onTouchEvent(e);
 
-        if (!mScaleDetector.isInProgress()&&e.getPointerCount()==1) {
-            //logic for rotation
+            if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
+                //logic for rotation
 
-            scaleDetectorWasInProgress = false;
-            mScaleFactor = 1;
+                //this is necessary because when a new multitouch occour the scaling knows that
+                //he needs the current scale of the selected object
+                scaleDetectorWasInProgress = false;
+                mScaleFactor = 1;
 
-            int pointerIndex;
+                int pointerIndex;
                 switch (e.getAction()) {
                     //basically:
                     //if primary touch id != previous touch id
@@ -67,28 +70,32 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     //else
                     //              we can rotate
                     case MotionEvent.ACTION_MOVE:
-                        if(e.getPointerId(0)!=mActivePointerId){
-                            mActivePointerId=e.getPointerId(0);
+                        if (e.getPointerId(0) != mActivePointerId) {
+                            mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
-                        }
-                        else
-                        {
+                        } else {
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
                         break;
+                    case MotionEvent.ACTION_DOWN:
+                        mActivePointerId = e.getPointerId(0);
+                        pointerIndex = e.findPointerIndex(mActivePointerId);
+                        mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
+                        break;
                 }
-        } else
-        //logic for scale
-        {
-            if (!scaleDetectorWasInProgress) {
-                startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                        new Vector3(e.getX(e.getPointerId(1)), e.getY(e.getPointerId(1)), 0));
-            }
+            } else
+            //logic for scale
+            {
+                if (!scaleDetectorWasInProgress) {
+                    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                            new Vector3(e.getX(e.getPointerId(1)), e.getY(e.getPointerId(1)), 0));
+                }
 
-            mRenderer.zoom(startingScale + (mScaleFactor - 1) * 2f);
-            scaleDetectorWasInProgress = true;
+                mRenderer.zoom(startingScale + (mScaleFactor - 1) * 2f);
+                scaleDetectorWasInProgress = true;
+            }
         }
         return true;
     }
