@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -68,6 +67,11 @@ public class Model3D {
     protected float _angleX;
     protected float _angleY;
     protected float _angleZ;
+
+
+    protected float[] modelMatrix = new float[16];
+    protected float[] tempMatrix = new float[16];
+    protected float[] mvpMatrix = new float[16];
 
     public Model3D(Context context) {
         // prepare shaders and OpenGL program
@@ -192,22 +196,18 @@ public class Model3D {
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
-        float[] model = new float[16];
-        float[] temp = new float[16];
-        float[] mvpMatrix = new float[16];
+        Matrix.setIdentityM(modelMatrix, 0); // initialize to identity matrix
 
-        Matrix.setIdentityM(model, 0); // initialize to identity matrix
+        Matrix.translateM(modelMatrix, 0, _x, _y, _z);
 
-        Matrix.translateM(model, 0, _x, _y, _z);
+        Matrix.scaleM(modelMatrix, 0, _scaleX, _scaleY, _scaleZ);
 
-        Matrix.scaleM(model, 0, _scaleX, _scaleY, _scaleZ);
+        Matrix.rotateM(modelMatrix, 0, _angleX, 1, 0, 0);
+        Matrix.rotateM(modelMatrix, 0, _angleY, 0, 1, 0);
+        Matrix.rotateM(modelMatrix, 0, _angleZ, 0, 0, 1);
 
-        Matrix.rotateM(model, 0, _angleX, 1, 0, 0);
-        Matrix.rotateM(model, 0, _angleY, 0, 1, 0);
-        Matrix.rotateM(model, 0, _angleZ, 0, 0, 1);
-
-        Matrix.multiplyMM(temp, 0, mViewMatrix, 0, model, 0);
-        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, temp, 0);
+        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
 
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
@@ -294,12 +294,6 @@ public class Model3D {
 
     //in degree
     public void rotate(Vector3 rotationVector) {
-        _angleX = (float) rotationVector.x();
-        _angleY = (float) rotationVector.y();
-        _angleZ = (float) rotationVector.z();
-    }
-
-    public void addRotate(Vector3 rotationVector) {
         _angleX += (float) rotationVector.x();
         _angleY += (float) rotationVector.y();
         _angleZ += (float) rotationVector.z();

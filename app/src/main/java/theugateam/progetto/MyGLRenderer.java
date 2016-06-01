@@ -56,6 +56,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Model3DVBO loadingText;
     private float startTime;
     private float stateTime;
+    private float frameTime;
 
     public void initialize(Context androidContext) {
         context = androidContext;
@@ -155,12 +156,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public void update() {
+        frameTime=stateTime;
         stateTime = (float) System.nanoTime() / 10000000f - startTime;
+        frameTime=stateTime-frameTime;
 
         switch (STATE) {
 
             case LOADING:
-                loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), stateTime));
+                loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), frameTime*0.7f));
                 boolean flag = true;
                 for (i = 0; i < heads.length; i++) {
                     if (heads[i].state() == Model3D.OBJECT_STATUS.REQUEST_LOAD_TEXTURE) {
@@ -320,12 +323,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     //move the selected object
     public void rotateHead(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING && touchDownCoords != null) {
-            Vector3 vector = new Vector3(
-                    (screenCoords.y() - touchDownCoords.y()) / camera.getScreenWidth() * ANGLE_MAGNITUDE,
-                    0,
-                    -(screenCoords.x() - touchDownCoords.x()) / camera.getScreenHeigth() * ANGLE_MAGNITUDE);
+            Vector3 vector = new Vector3((screenCoords.y() - touchDownCoords.y()) / camera.getScreenWidth() * ANGLE_MAGNITUDE
+                    ,(screenCoords.x() - touchDownCoords.x()) / camera.getScreenHeigth() * ANGLE_MAGNITUDE
+                    ,0);
 
-            selectedHeads.addRotate(vector);
+            selectedHeads.rotate(vector);
             touchDownCoords = screenCoords;
         }
     }
