@@ -89,8 +89,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
             //logic for scale
             {
                 if (!scaleDetectorWasInProgress) {
-                    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                            new Vector3(e.getX(e.getPointerId(1)), e.getY(e.getPointerId(1)), 0));
+                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                                new Vector3(e.getX(1), e.getY(1), 0));
                 }
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 2f);
