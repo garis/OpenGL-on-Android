@@ -23,3 +23,6 @@ www.wikipedia.org/wiki/Wavefront_.obj_file
 5. www.khronos.org/registry/gles/specs/2.0/es_full_spec_2.0.25.pdf
 6. www.developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/TechniquesforWorkingwithVertexData/TechniquesforWorkingwithVertexData.html soprattutto da "Listing 8-3" in poi e www.developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_vertexdata/opengl_vertexdata.html.
 7. Pag 124 della documentazione di Qualcomm per il multithreading.
+
+# Prestazioni #
+Da un veloce test sembra che disegnare la pigna con la classe Model3D impiega all'incirca 20000000 ns mentre con la classe Model3DVBO impiega 70000 ns (la differenza è enorme)
