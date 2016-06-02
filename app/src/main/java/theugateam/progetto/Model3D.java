@@ -21,7 +21,7 @@ import theugateam.progetto.Utils.Vector3;
 public class Model3D {
 
 
-    public static enum OBJECT_STATUS {
+    public enum OBJECT_STATUS {
         INITIALIZED, LOADING_OBJ, REQUEST_LOAD_OBJ, LOADING_TEXTURE, REQUEST_LOAD_TEXTURE, COMPLETE
     }
     protected String mName= "";
@@ -44,34 +44,16 @@ public class Model3D {
     protected int textureCoordinateHandle = 0;
     protected int textureUniformHandle = 0;
     protected int texture[] = {0};
-    //geometry with defaults values in it
-    //private float geometryCoords[]; = {
-           /* -1.0f, 1.0f, 0.0f,   // top left
-            -1.0f, -1.0f, 0.0f,   // bottom left
-            1.0f, -1.0f, 0.0f,   // bottom right
-            1.0f, 1.0f, 0.0f}; // top right*/
-    //private float[] uvCoords; = {
-     /*       0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
-    };*/
-    //private int drawOrder[];// = {0, 1, 2, 0, 2, 3}; // order to draw vertices
     protected int drawListBufferCapacity;
-    protected float _x;
-    protected float _y;
-    protected float _z;
-    protected float _scaleX;
-    protected float _scaleY;
-    protected float _scaleZ;
-    protected float _angleX;
-    protected float _angleY;
-    protected float _angleZ;
-
+    private Vector3 position;
+    private Vector3 scale;
+    private Vector3 angle;
 
     protected float[] modelMatrix = new float[16];
     protected float[] tempMatrix = new float[16];
     protected float[] mvpMatrix = new float[16];
+
+    private float[] lastRotation = new float[16];
 
     public Model3D(Context context) {
         // prepare shaders and OpenGL program
@@ -85,15 +67,13 @@ public class Model3D {
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
 
-        _x = 0;
-        _y = 0;
-        _z = 0;
-        _scaleX = 1;
-        _scaleY = 1;
-        _scaleZ = 1;
-        _angleX = 0;
-        _angleY = 0;
-        _angleZ = 0;
+        position = new Vector3(0, 0, 0);
+        scale = new Vector3(1, 1, 1);
+        angle = new Vector3(0, 0, 0);
+
+        Matrix.setIdentityM(accumulatedRotation, 0);
+        Matrix.setIdentityM(modelMatrix, 0);
+
 
         updatePointerVariables();
     }
@@ -108,12 +88,14 @@ public class Model3D {
 
         MyGLRenderer.checkGlError("end updatePointerVariables");
     }
+
     // trasferisce la Bitmap della Texture da file a memoria
     public void saveBitmap(Context context, int id) {
         bitmap = BitmapFactory.decodeResource(context.getResources(), id);
 
         objectState=OBJECT_STATUS.REQUEST_LOAD_TEXTURE;
     }
+
     // copia il bitmap dalla emoria di Android a quella di OpenGL
     public void loadFromSavedBitmap() {
         if (bitmap != null) {
@@ -157,7 +139,6 @@ public class Model3D {
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
 
         MyGLRenderer.checkGlError("updateGeometryAndUVs");
-        //geometryCoords = GeometryCoords;
 
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(
@@ -168,7 +149,6 @@ public class Model3D {
         vertexBuffer.put(GeometryCoords);
         vertexBuffer.position(0);
 
-        //drawOrder = DrawOrder;
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(
                 // (# of coordinate values * 4 bytes per int)
@@ -179,8 +159,6 @@ public class Model3D {
         drawListBuffer.position(0);
 
         drawListBufferCapacity = drawListBuffer.capacity();
-
-        //uvCoords = UVCoords;
 
         // The texture buffer
         bb = ByteBuffer.allocateDirect(UVCoords.length * 4);
@@ -196,18 +174,12 @@ public class Model3D {
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
-        Matrix.setIdentityM(modelMatrix, 0); // initialize to identity matrix
-
-        Matrix.translateM(modelMatrix, 0, _x, _y, _z);
-
-        Matrix.scaleM(modelMatrix, 0, _scaleX, _scaleY, _scaleZ);
-
-        Matrix.rotateM(modelMatrix, 0, _angleX, 1, 0, 0);
-        Matrix.rotateM(modelMatrix, 0, _angleY, 0, 1, 0);
-        Matrix.rotateM(modelMatrix, 0, _angleZ, 0, 0, 1);
-
         Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
+
+        System.arraycopy(mvpMatrix, 0, tempMatrix, 0, 16);
+
+        Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
 
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
@@ -270,15 +242,29 @@ public class Model3D {
         objectState=OBJECT_STATUS.LOADING_TEXTURE;
     }
 
-    public void scale(Vector3 scale) {
-        _scaleX = (float) scale.x();
-        _scaleY = (float) scale.y();
-        _scaleZ = (float) scale.z();
+    public void moveScaleRotate(Vector3 position, Vector3 scale, Vector3 rotationVector) {
+        Matrix.setIdentityM(modelMatrix, 0);
+        move(position);
+        scale(scale);
+        rotate(rotationVector);
+    }
+
+    private void scale(Vector3 newScale) {
+        Matrix.setIdentityM(modelMatrix, 0);
+
+        move(position);
+
+        scale.x(newScale.x());
+        scale.y(newScale.y());
+        scale.z(newScale.z());
+
+        Matrix.scaleM(modelMatrix, 0, (float) scale.x(), (float) scale.y(), (float) scale.z());
+        rotate(new Vector3(0, 0, 0));
     }
 
     public float getGlobalScale()
     {
-        return _scaleX;
+        return (float) scale.x();
     }
 
     public void setGlobalScale(float newScale)
@@ -286,29 +272,43 @@ public class Model3D {
         scale(new Vector3(newScale,newScale,newScale));
     }
 
-    public void move(Vector3 position) {
-        _x = (float) position.x();
-        _y = (float) position.y();
-        _z = (float) position.z();
+    private void move(Vector3 newPosition) {
+        position.x(newPosition.x());
+        position.y(newPosition.y());
+        position.z(newPosition.z());
+
+        Matrix.translateM(modelMatrix, 0, (float) position.x(), (float) position.y(), (float) position.z());
     }
+
+    protected float[] accumulatedRotation = new float[16];
+    protected float[] rotationMatrix = new float[16];
 
     //in degree
     public void rotate(Vector3 rotationVector) {
-        _angleX += (float) rotationVector.x();
-        _angleY += (float) rotationVector.y();
-        _angleZ += (float) rotationVector.z();
+        Matrix.setIdentityM(lastRotation, 0);
+        Matrix.rotateM(lastRotation, 0, (float) rotationVector.x(), 1.0f, 0.0f, 0.0f);
+        Matrix.rotateM(lastRotation, 0, (float) rotationVector.y(), 0.0f, 1.0f, 0.0f);
+        Matrix.rotateM(lastRotation, 0, (float) rotationVector.z(), 0.0f, 0.0f, 1.0f);
+
+        Matrix.multiplyMM(rotationMatrix, 0, lastRotation, 0, accumulatedRotation, 0);
+
+        System.arraycopy(rotationMatrix, 0, accumulatedRotation, 0, 16);
+
+        angle.x(angle.x() + rotationVector.x());
+        angle.y(angle.y() + rotationVector.y());
+        angle.z(angle.x() + rotationVector.z());
     }
 
     public float getRotation(int n) {
         switch (n) {
             case 0:
-                return _angleX;
+                return (float) angle.x();
             case 1:
-                return _angleY;
+                return (float) angle.y();
             case 2:
-                return _angleZ;
+                return (float) angle.z();
         }
-        return _x;
+        return -1;
     }
 
     // red, green, blue and alpha from 0 to 255

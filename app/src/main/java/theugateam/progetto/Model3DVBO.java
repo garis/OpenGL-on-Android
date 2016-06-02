@@ -5,7 +5,6 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 /**
- * Created by riccardo on 13/05/16.
  *
  *
  * questa sovrascrittura della classe Model3D implementa i vertex buffer
@@ -78,23 +77,16 @@ public class Model3DVBO extends Model3D {
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
         MyGLRenderer.checkGlError("pre draw");
-        float[] model = new float[16];
-        float[] temp = new float[16];
+
         float[] mvpMatrix = new float[16];
 
-        Matrix.setIdentityM(model, 0); // initialize to identity matrix
 
-        Matrix.translateM(model, 0, _x, _y, _z);
+        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
 
-        Matrix.scaleM(model, 0, _scaleX, _scaleY, _scaleZ);
+        System.arraycopy(mvpMatrix, 0, tempMatrix, 0, 16);
 
-        Matrix.rotateM(model, 0, _angleX, 1, 0, 0);
-        Matrix.rotateM(model, 0, _angleY, 0, 1, 0);
-        Matrix.rotateM(model, 0, _angleZ, 0, 0, 1);
-
-        //MyGLRenderer.checkGlError("_angleZ");
-        Matrix.multiplyMM(temp, 0, mViewMatrix, 0, model, 0);
-        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, temp, 0);
+        Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
 
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);

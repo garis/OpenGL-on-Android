@@ -2,7 +2,6 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
@@ -64,13 +63,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
                 int pointerIndex;
                 switch (e.getAction()) {
-                    //basically:
                     //if primary touch id != previous touch id
                     //              we need to find a new point of reference for the rotation and a new id
                     //else
                     //              we can rotate
                     case MotionEvent.ACTION_MOVE:
-                        if (e.getPointerId(0) != mActivePointerId) {
+                        if ((e.getPointerId(0) != mActivePointerId) || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
@@ -88,12 +86,18 @@ public class MyGLSurfaceView extends GLSurfaceView {
             } else
             //logic for scale
             {
+                //reset the pointer responsible for the rotation everytime a scale occour
+                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+
+                //if it the first sequence of scaling touches set a starting value for the scaling
                 if (!scaleDetectorWasInProgress) {
                         startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
                                 new Vector3(e.getX(1), e.getY(1), 0));
                 }
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 2f);
+
+                //now we know that if a scaling event occur next we have already the starting scale of the object
                 scaleDetectorWasInProgress = true;
             }
         }

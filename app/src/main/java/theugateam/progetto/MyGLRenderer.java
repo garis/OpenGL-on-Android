@@ -29,15 +29,12 @@ import theugateam.progetto.Utils.Vector3;
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public enum STATUS {
-        LOADING, APPLYING_TEXTURE, DRAWING
+        LOADING, DRAWING
     }
 
     //TODO
     /*
     sistemare le cose che settano OBJECT_STATUS in giro
-    e discutere se questo sistema di loading va bene
-    ora: maggior CPU e RAM (anche 80 megabyte di picco) ma minor TEMPO
-    prima: minor CPU e RAM (30 megabyte di picco) ma maggior TEMPO
      */
 
     private static final String TAG = "MyGLRenderer";
@@ -51,9 +48,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Camera camera;
     private Model3DVBO[] heads;
     private Model3DVBO selectedHeads;
-    private Vector3 startingRotation;
-    private Model3DVBO loadingGear;
-    private Model3DVBO loadingText;
+    private Model3D loadingGear;
+    private Model3D loadingText;
     private float startTime;
     private float stateTime;
     private float frameTime;
@@ -87,33 +83,30 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
 
-        loadingGear = new Model3DVBO(context);
+        loadingGear = new Model3D(context);
         loadingGear.loadFromOBJ(context, "gear");
         loadingGear.loadGLTexture(context, R.drawable.white);
-        loadingGear.scale(new Vector3(1.6, 1.6, 1.6));
-        loadingGear.move(new Vector3(0, 4, 0));
-        loadingGear.rotate(new Vector3(0, 0, 0));
+        loadingGear.moveScaleRotate(new Vector3(0, 4, 0),
+                new Vector3(1.6, 1.6, 1.6),
+                new Vector3(0, 0, 0));
         loadingGear.setColor(255, 76, 59, 255);
 
-        loadingText = new Model3DVBO(context);
+        loadingText = new Model3D(context);
         loadingText.loadFromOBJ(context, "loading");
         loadingText.loadGLTexture(context, R.drawable.white);
-        loadingText.scale(new Vector3(2.7, 2.7, 2.7));
-        loadingText.move(new Vector3(0, -7, 0));
-        loadingText.rotate(new Vector3(0, 0, 0));
+        loadingText.moveScaleRotate(new Vector3(0, -7, 0),
+                new Vector3(2.7, 2.7, 2.7),
+                new Vector3(0, 0, 0));
         loadingText.setColor(0, 114, 187, 255);
-
-        // LoadingThread loadingThread = new LoadingThread();
 
         selectedHeads = new Model3DVBO(context);
         heads = new Model3DVBO[3];
 
         heads[0] = new Model3DVBO(context);
         heads[0].setName("nastro");
-        heads[0].scale(new Vector3(2, 2, 2));
-        heads[0].move(new Vector3(-10, 0, 0));
-        heads[0].rotate(new Vector3(90, 0, 0));
-        //loadingThread.loadObject(new LoadingInfo(heads[0], "mobius", R.drawable.mobius));
+        heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
+                new Vector3(2, 2, 2),
+                new Vector3(90, 0, 0));
         Thread thread0 = new Thread() {
             public void run() {
                 heads[0].loadFromOBJThreaded(context, "mobius");
@@ -125,10 +118,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         heads[1] = new Model3DVBO(context);
         heads[1].setName("pigna");
-        heads[1].scale(new Vector3(0.9, 0.9, 0.9));
-        heads[1].move(new Vector3(0, 0, 0));
-        heads[1].rotate(new Vector3(90, 0, 0));
-        //loadingThread.loadObject(new LoadingInfo(heads[1], "pigna", R.drawable.tex));
+        heads[1].moveScaleRotate(new Vector3(0, 0, 0),
+                new Vector3(0.9, 0.9, 0.9),
+                new Vector3(90, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
                 heads[1].loadFromOBJThreaded(context, "pigna");
@@ -140,10 +132,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         heads[2] = new Model3DVBO(context);
         heads[2].setName("bottiglia");
-        heads[2].scale(new Vector3(1.5, 1.5, 1.5));
-        heads[2].move(new Vector3(10, 0, 0));
-        heads[2].rotate(new Vector3(90, 0, 0));
-        //loadingThread.loadObject(new LoadingInfo(heads[2], "kleinbottle", R.drawable.kleinbottle));
+        heads[2].moveScaleRotate(new Vector3(10, 0, 0),
+                new Vector3(1.5, 1.5, 1.5),
+                new Vector3(90, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
                 heads[2].loadFromOBJThreaded(context, "kleinbottle");
@@ -152,7 +143,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         };
 
         thread2.start();
-        //loadingThread.start();
     }
 
     public void update() {
@@ -179,15 +169,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                     changeState(STATUS.DRAWING);
                 break;
 
-            //the texture must be loaded on the GLThread not from some others thread
-            case APPLYING_TEXTURE:
-                /*for (i = 0; i < heads.length; i++) {
-                    heads[i].loadObjData();
-                    heads[i].loadFromSavedBitmap();
-                }
-                changeState(STATUS.DRAWING);*/
-                break;
-
             case DRAWING:
                 break;
         }
@@ -208,12 +189,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 loadingText.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 break;
 
-            //the texture must be loaded on the GLThread not from some others thread
-            case APPLYING_TEXTURE:
-                //for (Model3D head : heads) head.loadFromSavedBitmap();
-                //changeState(STATUS.DRAWING);
-                break;
-
             case DRAWING:
                 for (i = 0; i < heads.length; i++) {
                     heads[i].draw(camera.getViewMatrix(), camera.getProjectionMatrix());
@@ -230,9 +205,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case LOADING:
                 break;
 
-            case APPLYING_TEXTURE:
-                break;
-
             case DRAWING:
                 break;
         }
@@ -241,45 +213,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public STATUS getState() {
         return STATE;
     }
-/*
-    class LoadingThread extends Thread {
-        ArrayList<LoadingInfo> objects;
-
-        public LoadingThread() {
-            objects = new ArrayList<>();
-        }
-
-        public void loadObject(LoadingInfo head) {
-            objects.add(head);
-        }
-
-        public void run() {
-            for (LoadingInfo load : objects
-                    ) {
-                load.load();
-            }
-            changeState(STATUS.APPLYING_TEXTURE);
-        }
-    }
-*/
-    /*
-    class LoadingInfo {
-        public Model3D head;
-        public String objFile;
-        public int texture;
-
-        public LoadingInfo(Model3D headObj, String file, int textureId) {
-            head = headObj;
-            objFile = file;
-            texture = textureId;
-        }
-
-        public void load() {
-            head.loadFromOBJThreaded(context, objFile);
-            head.saveBitmap(context, texture);
-        }
-    }
-*/
 
     //region user touch action
 
@@ -291,7 +224,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             else if (touchDownCoords.x() / camera.getScreenWidth() < 0.66f)
                 selectedHeads = heads[1];
             else selectedHeads = heads[2];
-            startingRotation = new Vector3(selectedHeads.getRotation(0), selectedHeads.getRotation(1), selectedHeads.getRotation(2));
         }
     }
 
@@ -310,8 +242,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             else
                 selectedHeads = heads[2];
         }
-        startingRotation = new Vector3(selectedHeads.getRotation(0), selectedHeads.getRotation(1), selectedHeads.getRotation(2));
-
         return selectedHeads.getGlobalScale();
 
     }
