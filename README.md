@@ -15,6 +15,10 @@ www.wikipedia.org/wiki/Wavefront_.obj_file
 8. trucco esagerato
 9. COCCODE!!!!
 
+# Icona #
+Nella cartella LOGOEMBEDDED c'è il file xcf (creato con gimp) che contiene il disegno dell'icona.
+Per creare tutte le iconcine che l'app necessita io ho usato https://romannurik.github.io/AndroidAssetStudio/index.html, sezione generic icons.
+
 # Note serie (& TO DO) #
 1. approfondire (aka testare) VBO in OpenGLES20ProgrammingGuide.pdf pag 115 RISOLTO.
 2. errore 1280 (il numero esatto non lo ricordo) RISOLTO.

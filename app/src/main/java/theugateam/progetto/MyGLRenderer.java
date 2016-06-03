@@ -66,7 +66,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height);
 
         ZNear = 1;
-        ZFar = 100;
+        ZFar = 50;
 
         camera.setProjectionMatrix(width, height, ZNear, ZFar);
     }
@@ -111,6 +111,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[0].loadFromOBJThreaded(context, "mobius");
                 heads[0].saveBitmap(context, R.drawable.mobius);
+                //heads[0].loadFromOBJThreaded(context, "axis");
+                //heads[0].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -125,6 +127,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[1].loadFromOBJThreaded(context, "pigna");
                 heads[1].saveBitmap(context, R.drawable.tex);
+                //heads[1].loadFromOBJThreaded(context, "axis");
+                //heads[1].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -139,6 +143,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[2].loadFromOBJThreaded(context, "kleinbottle");
                 heads[2].saveBitmap(context, R.drawable.kleinbottle);
+                //heads[2].loadFromOBJThreaded(context, "axis");
+                //heads[2].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -178,7 +184,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        GLES20.glClearColor(0, 1.0f, 1.0f, 1.0f);
+        GLES20.glClearColor(0, 0.0f, 0.0f, 1.0f);
 
         update();
 

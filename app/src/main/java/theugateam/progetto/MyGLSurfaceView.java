@@ -41,8 +41,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private boolean scaleDetectorWasInProgress = false;
 
-    private boolean pointerUp = false;
-
     private int mActivePointerId=MotionEvent.INVALID_POINTER_ID;
 
     @Override
@@ -95,7 +93,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                                 new Vector3(e.getX(1), e.getY(1), 0));
                 }
 
-                mRenderer.zoom(startingScale + (mScaleFactor - 1) * 2f);
+                mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
 
                 //now we know that if a scaling event occur next we have already the starting scale of the object
                 scaleDetectorWasInProgress = true;
