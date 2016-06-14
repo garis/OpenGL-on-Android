@@ -84,7 +84,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
 
         loadingGear = new Model3D(context);
-        loadingGear.loadFromOBJ(context, "gear");
+        loadingGear.loadFromOBJ(context, "newgear");
         loadingGear.loadGLTexture(context, R.drawable.white);
         loadingGear.moveScaleRotate(new Vector3(0, 4, 0),
                 new Vector3(1.6, 1.6, 1.6),

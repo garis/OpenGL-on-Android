@@ -16,8 +16,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
 
-    //see:http://android-developers.blogspot.it/2010/06/making-sense-of-multitouch.html?m=1
+    //vedi: http://android-developers.blogspot.it/2010/06/making-sense-of-multitouch.html?m=1
+    // e https://developer.android.com/training/gestures/scale.html
     private ScaleGestureDetector mScaleDetector;
+
     private float mScaleFactor;
 
     public MyGLSurfaceView(Context context) {
@@ -31,7 +33,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         mRenderer.initialize(context);
         setRenderer(mRenderer);
 
-        // Render continuosly per poter usare l'ingranaggio di caricamento
+        // Render continuo per poter usare l'ingranaggio di caricamento
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -41,61 +43,62 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private boolean scaleDetectorWasInProgress = false;
 
-    private int mActivePointerId=MotionEvent.INVALID_POINTER_ID;
+    public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
         if(mRenderer.getState()== MyGLRenderer.STATUS.DRAWING) {
-            // Let the ScaleGestureDetector inspect all events.
 
+            // chiamo ScaleGestureDetector per ispezionare l'evento appena accaduto
             mScaleDetector.onTouchEvent(e);
 
+            //se c'è un solo tocco, interpretarlo come rotazione
             if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
-                //logic for rotation
 
-                //this is necessary because when a new multitouch occour the scaling knows that
-                //he needs the current scale of the selected object
+                //se il tocco dovesse passare da modalità "ruota" a modalità "scala"
+                //il metodo che scala troverà un valore inziale su cui basarla
                 scaleDetectorWasInProgress = false;
                 mScaleFactor = 1;
 
                 int pointerIndex;
                 switch (e.getAction()) {
-                    //if primary touch id != previous touch id
-                    //              we need to find a new point of reference for the rotation and a new id
-                    //else
-                    //              we can rotate
                     case MotionEvent.ACTION_MOVE:
+                        //se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
                         if ((e.getPointerId(0) != mActivePointerId) || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
+                            //troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         } else {
+                            //ruotiamo
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
                         break;
-                    case MotionEvent.ACTION_DOWN:
-                        mActivePointerId = e.getPointerId(0);
-                        pointerIndex = e.findPointerIndex(mActivePointerId);
-                        mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
-                        break;
                 }
             } else
-            //logic for scale
+            //logica per lo zoom
             {
-                //reset the pointer responsible for the rotation everytime a scale occour
-                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-
-                //if it the first sequence of scaling touches set a starting value for the scaling
+                //se è il primo tocco di una sequenza di tocca per scalare un oggetto
                 if (!scaleDetectorWasInProgress) {
+                    //se si sta scalando l'oggetto usando 2 dita
+                    if (e.getPointerCount() >= 2) {
                         startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
                                 new Vector3(e.getX(1), e.getY(1), 0));
+                    }
+                    //oppure se si sta usando una "scala a trascinamento"
+                    //cioè un tap seguito da uno slide subito dopo
+                    else {
+                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                                new Vector3(e.getX(0), e.getY(0), 0));
+                    }
                 }
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
 
-                //now we know that if a scaling event occur next we have already the starting scale of the object
+                //ora facciamo in modo che la prossima volta che si entra qui, non ci si salvi una
+                //nuova scala di partenza
                 scaleDetectorWasInProgress = true;
             }
         }
@@ -106,6 +109,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            //resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
+            //rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
+            mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+
             mScaleFactor *= detector.getScaleFactor();
 
             // Don't let the object get too small or too large.
