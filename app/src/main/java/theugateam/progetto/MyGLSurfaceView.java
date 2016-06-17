@@ -2,6 +2,7 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
@@ -19,6 +20,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     //vedi: http://android-developers.blogspot.it/2010/06/making-sense-of-multitouch.html?m=1
     // e https://developer.android.com/training/gestures/scale.html
     private ScaleGestureDetector mScaleDetector;
+    private GestureDetector mDoubleTapDetector;
 
     private float mScaleFactor;
 
@@ -37,6 +39,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+
+        mDoubleTapDetector = new GestureDetector(context, new GestureDoubleTap());
     }
 
     private float startingScale = 1;
@@ -52,8 +56,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
             // chiamo ScaleGestureDetector per ispezionare l'evento appena accaduto
             mScaleDetector.onTouchEvent(e);
+            mDoubleTapDetector.onTouchEvent(e);
 
-            //se c'è un solo tocco, interpretarlo come rotazione
+            //se c'è un solo tocco e non stai zoomando, interpretarlo come rotazione
             if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
 
                 //se il tocco dovesse passare da modalità "ruota" a modalità "scala"
@@ -65,21 +70,26 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_MOVE:
                         //se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
-                        if ((e.getPointerId(0) != mActivePointerId) || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
+                        if ((e.getPointerId(0) != mActivePointerId)) {// || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
                             //troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
-                        } else {
-                            //ruotiamo
+                        } else if (!doubleTapOccoured) {
+                            //ruotiamo solo se non è stato rilevato un double tap (che implica uno zoom)
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        doubleTapOccoured = false;
+                        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                         break;
                 }
             } else
             //logica per lo zoom
             {
+                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                 //se è il primo tocco di una sequenza di tocca per scalare un oggetto
                 if (!scaleDetectorWasInProgress) {
                     //se si sta scalando l'oggetto usando 2 dita
@@ -105,13 +115,23 @@ public class MyGLSurfaceView extends GLSurfaceView {
         return true;
     }
 
+    private boolean doubleTapOccoured = false;
+
+    public class GestureDoubleTap extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            doubleTapOccoured = true;
+            return true;
+        }
+
+    }
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             //resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
             //rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
-            mActivePointerId = MotionEvent.INVALID_POINTER_ID;
 
             mScaleFactor *= detector.getScaleFactor();
 

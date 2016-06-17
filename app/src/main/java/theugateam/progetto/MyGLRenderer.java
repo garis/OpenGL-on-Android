@@ -89,7 +89,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         loadingGear.moveScaleRotate(new Vector3(0, 4, 0),
                 new Vector3(1.6, 1.6, 1.6),
                 new Vector3(0, 0, 0));
-        loadingGear.setColor(255, 76, 59, 255);
+        loadingGear.setColor(255, 220, 0, 255);
 
         loadingText = new Model3D(context);
         loadingText.loadFromOBJ(context, "loading");
