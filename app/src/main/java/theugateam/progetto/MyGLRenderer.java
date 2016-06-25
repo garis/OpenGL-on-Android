@@ -74,6 +74,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         changeState(STATUS.LOADING);
+
         //z buffer
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         //GLES20.glDepthFunc(GLES20.GL_LEQUAL);
@@ -111,8 +112,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[0].loadFromOBJThreaded(context, "mobius");
                 heads[0].saveBitmap(context, R.drawable.mobius);
-                //heads[0].loadFromOBJThreaded(context, "axis");
-                //heads[0].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -127,8 +126,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[1].loadFromOBJThreaded(context, "pigna");
                 heads[1].saveBitmap(context, R.drawable.tex);
-                //heads[1].loadFromOBJThreaded(context, "axis");
-                //heads[1].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -143,8 +140,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             public void run() {
                 heads[2].loadFromOBJThreaded(context, "kleinbottle");
                 heads[2].saveBitmap(context, R.drawable.kleinbottle);
-                //heads[2].loadFromOBJThreaded(context, "axis");
-                //heads[2].saveBitmap(context, R.drawable.axiscolor);
             }
         };
 
@@ -162,13 +157,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), frameTime*0.7f));
                 boolean flag = true;
                 for (i = 0; i < heads.length; i++) {
-                    if (heads[i].state() == Model3D.OBJECT_STATUS.REQUEST_LOAD_TEXTURE) {
-                        // lo scatto eventuale dell'ingranaggio è dovuto a queste chiamate
-                        // che vanno eseguite nel mainThread come le funzioni di draw OpenGL
-                        Log.d("DEBUG", "LOADING" + i);
+                    if (heads[i].state() == 2) {
+                        //una volta che il thread di appoggio ha caricato texture e geometria
+                        //il thread principale deve caricare i tutto in OpenGL
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
-                    } else if (heads[i].state() != Model3D.OBJECT_STATUS.COMPLETE)
+                    } else if (heads[i].state() != 4)
+                        //finchè non è tutto caricato rimane nella schermata di loading
                         flag = false;
                 }
                 if (flag)
@@ -191,11 +186,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         switch (STATE) {
 
             case LOADING:
+                //disegna gli elementi appartenenti alla schermata di looading
                 loadingGear.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 loadingText.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 break;
 
             case DRAWING:
+                //disegna gli elementi appartenenti alla schermata principale
                 for (i = 0; i < heads.length; i++) {
                     heads[i].draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 }
@@ -222,6 +219,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     //region user touch action
 
+    //decide quale testa è da ruotare
     public void selectHeadRotation(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING) {
             touchDownCoords = screenCoords;
@@ -235,6 +233,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     //return the scale of the selected object
     public float selectedForScale(Vector3 point1, Vector3 point2) {
+        //se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
         if (STATE == STATUS.DRAWING) {
             Vector3 mid_point = new Vector3(
                     (point2.x() + point1.x()) / 2.0f,
@@ -252,11 +251,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     }
 
+    //imposta la nuova scala all'oggetto d'interesse
     public void zoom(float scale) {
-        selectedHeads.setGlobalScale(scale);
+        if (scale > 0)
+            selectedHeads.setGlobalScale(scale);
     }
 
-    //move the selected object
+    //imposta la nuova rotazione all'oggetto d'interesse
     public void rotateHead(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING && touchDownCoords != null) {
             Vector3 vector = new Vector3((screenCoords.y() - touchDownCoords.y()) / camera.getScreenWidth() * ANGLE_MAGNITUDE
@@ -314,6 +315,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    //legge e ritorna su stringa il codice dello shader prelevato da un file resourceId relativo ad un context
     public static String readTextFileFromResource(Context context,
                                                   int resourceId) {
         StringBuilder body = new StringBuilder();

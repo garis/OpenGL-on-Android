@@ -31,6 +31,7 @@ public class OBJParser {
     public OBJParser() {
     }
 
+    //ritorna vero se ha caricato qualcosa
     public boolean loadFromOBJ(Context context, String name) {
         BufferedReader br = null;
         String sCurrentLine;
@@ -77,9 +78,9 @@ public class OBJParser {
                 } else if (str[0].charAt(0) == 'f') {
                     for (int i = 1; i < str.length; i++) {
                         String[] item = str[i].split("/");
-                        //vertex
+                        //vertici
                         f0List.add(Integer.parseInt(item[0]) - 1);
-                        //uv and max index
+                        //indici e vertici della texture
                         f1List.add(Integer.parseInt(item[1]) - 1);
                     }
                 }
@@ -88,6 +89,7 @@ public class OBJParser {
             }
         }
 
+        //ora ordina vertici e vertici texture in modo da rispettare gli indici
         V = new float[f0List.size() * 3];
         VT = new float[f0List.size() * 2];
         F = new int[f0List.size()];
@@ -108,7 +110,8 @@ public class OBJParser {
 
             VT[countVT++] = VTList.get(n1).getX();
             VT[countVT++] = 1 - VTList.get(n1).getY();
-            //OBJ considers (0, 0) to be the top left of a texture, OpenGL considers it to be the bottom left
+            //OBJ considera (0, 0) in alto a sinistra della texture
+            //OpenGL considera (0, 0) in basso a sinistra
 
 
             F[count0] = count0;
@@ -130,6 +133,8 @@ public class OBJParser {
         return F;
     }
 
+
+    //classe di supporto che rappresenta un punto
     class Point {
 
         float x, y, z;

@@ -17,20 +17,24 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
 
-    //vedi: http://android-developers.blogspot.it/2010/06/making-sense-of-multitouch.html?m=1
-    // e https://developer.android.com/training/gestures/scale.html
+    //rilevatore di gesture relative alla scala
     private ScaleGestureDetector mScaleDetector;
+    //rilevatore di gesture relative ad un doppio tap
+    //usato per impedire la rotazione di un oggetto subito prima che avvenga uno zoom eseguito con un dto solo
     private GestureDetector mDoubleTapDetector;
 
+    //scala rilevata da mScaleDetector
     private float mScaleFactor;
 
     public MyGLSurfaceView(Context context) {
         super(context);
 
-        // Create an OpenGL ES 2.0 context.
+        // Crea un nuovo contesto OpenGL ES 2.0
         setEGLContextClientVersion(2);
+
         mScaleFactor = 1;
-        // Set the Renderer for drawing on the GLSurfaceView
+
+        // Settta il render per disegnare nella GLSurfaceView
         mRenderer = new MyGLRenderer();
         mRenderer.initialize(context);
         setRenderer(mRenderer);
@@ -39,7 +43,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-
         mDoubleTapDetector = new GestureDetector(context, new GestureDoubleTap());
     }
 
@@ -135,7 +138,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
             mScaleFactor *= detector.getScaleFactor();
 
-            // Don't let the object get too small or too large.
+            // limita i valori di zoom
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
 
             return true;
