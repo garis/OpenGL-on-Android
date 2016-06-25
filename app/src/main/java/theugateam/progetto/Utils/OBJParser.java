@@ -31,6 +31,7 @@ public class OBJParser {
     public OBJParser() {
     }
 
+    //carica ogni riga del file dentro la struttura "file"
     //ritorna vero se ha caricato qualcosa
     public boolean loadFromOBJ(Context context, String name) {
         BufferedReader br = null;
@@ -44,6 +45,7 @@ public class OBJParser {
 
             br = new BufferedReader(inputStreamReader);
             while ((sCurrentLine = br.readLine()) != null) {
+                //legge ogni riga saltando quelle che contengono commenti (contrassegnate da #)
                 if ((sCurrentLine.length() >= 1) && (sCurrentLine.charAt(0) != '#')) {
                     file.add(sCurrentLine);
                 }
@@ -63,19 +65,28 @@ public class OBJParser {
         return flag;
     }
 
+    //costruisce i dati della geometria dell'oggetto analizzado il file precedentemente caricato
     private void createVertices() {
         List<Point> VList = new ArrayList<>();
         List<Point> VTList = new ArrayList<>();
         List<Integer> f0List = new ArrayList<>();
         List<Integer> f1List = new ArrayList<>();
 
+        //per ogni riga
         for (String aFile : file) {
+            //separa le componenti attraverso il carattere speciale "spazio"
             String[] str = aFile.split("\\s+");
 
+            //str[0] identifica il tipo di dato che la riga contiene
+            //se str[0].length() == 1 sicuramente non potrà contenere "vt"
             if (str[0].length() == 1) {
+                //se è un vertice (contrassegnato da "v")
                 if (str[0].charAt(0) == 'v') {
                     VList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), Float.parseFloat(str[3])));
-                } else if (str[0].charAt(0) == 'f') {
+                }
+                //se è una riga che dice di quali punti (sia vertici sia texture) è composto ogni triangolo
+                //(contrassegnato da "f")
+                else if (str[0].charAt(0) == 'f') {
                     for (int i = 1; i < str.length; i++) {
                         String[] item = str[i].split("/");
                         //vertici
@@ -84,7 +95,9 @@ public class OBJParser {
                         f1List.add(Integer.parseInt(item[1]) - 1);
                     }
                 }
-            } else if ((str[0].length() == 2) && (str[0].charAt(0) == 'v') && (str[0].charAt(1) == 't')) {
+            }
+            //se è una riga che contiene coordinate relative alla texture (contrassegnato da "vt")
+            else if ((str[0].length() == 2) && (str[0].charAt(0) == 'v') && (str[0].charAt(1) == 't')) {
                 VTList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), 0));
             }
         }
