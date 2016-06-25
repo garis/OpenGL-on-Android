@@ -80,6 +80,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         //GLES20.glDepthFunc(GLES20.GL_LEQUAL);
         //GLES20.glDepthMask(true);
 
+        /*culling.....if you want
+        GLES20.glFrontFace(GLES20.GL_CCW );
+        GLES20.glCullFace(GLES20.GL_BACK);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);*/
+
         camera = new Camera();
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
