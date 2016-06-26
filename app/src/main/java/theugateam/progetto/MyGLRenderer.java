@@ -32,11 +32,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         LOADING, DRAWING
     }
 
-    //TODO
-    /*
-    sistemare le cose che settano OBJECT_STATUS in giro
-     */
-
     private static final String TAG = "MyGLRenderer";
     private final int ANGLE_MAGNITUDE = 360;
     private Context context;

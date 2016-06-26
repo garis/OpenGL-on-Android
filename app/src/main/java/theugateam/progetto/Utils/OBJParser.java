@@ -113,20 +113,23 @@ public class OBJParser {
         int countV = 0;
         int countVT = 0;
         int count0 = 0;
+        //per ogni triangolo che ha trovato ("face" nel file .obj)...
         while (iterator0.hasNext()) {
             int n0 = iterator0.next();
             int n1 = iterator1.next();
 
+            //...inserisce sequenzialmente i tre vertici che compongono quel triangolo...
             V[countV++] = VList.get(n0).getX();
             V[countV++] = VList.get(n0).getY();
             V[countV++] = VList.get(n0).getZ();
 
+            //...e le sue relative coordinate di texture....
             VT[countVT++] = VTList.get(n1).getX();
+            //...facendo attenzione al fatto che OBJ considera (0, 0) in alto a sinistra della texture
+            //mentre OpenGL considera (0, 0) in basso a sinistra...
             VT[countVT++] = 1 - VTList.get(n1).getY();
-            //OBJ considera (0, 0) in alto a sinistra della texture
-            //OpenGL considera (0, 0) in basso a sinistra
 
-
+            //...e crea il vettore che dice con che ordine devono essere disegnati i punti
             F[count0] = count0;
             count0++;
         }

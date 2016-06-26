@@ -169,7 +169,7 @@ public class Model3D {
 
         compute_mvpMatrix(mViewMatrix, mProjectionMatrix);
 
-        // attiva il programma che istruirà OpenGL su il tipo di operazioni da fare
+        // specifica quale programma OpenGL usare in questa draw
         GLES20.glUseProgram(mProgram);
 
         //preparazione per il passaggio delle coordinate dei vertici
