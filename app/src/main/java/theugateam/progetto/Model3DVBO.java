@@ -40,7 +40,7 @@ public class Model3DVBO extends Model3D {
         GLES20.glGenBuffers(1, indexVBO, 0);
 
         //variabile per avere lo stato dell'oggetto (utile in multithreading)
-        resourceLoaded = 0;
+        resourcesLoaded = 0;
     }
 
     // carica la geometria tridimensionale (non disegna nulla ancora)

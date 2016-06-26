@@ -21,8 +21,6 @@ public class Camera {
 
     private float[] ViewMatrix;
 
-    private float diagonalLength;
-
     public Camera() {
         _cameraX = 0;
         _cameraY = 0;
@@ -37,7 +35,6 @@ public class Camera {
 
         ScreenWidth = 0;
         ScreenHeigth = 0;
-        diagonalLength = 0;
     }
 
     public float getScreenWidth() {
@@ -67,7 +64,6 @@ public class Camera {
         ScreenHeigth = screenHeight;
         float ratio = ScreenWidth / ScreenHeigth;
         Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
-        diagonalLength = (float) Math.sqrt((Math.pow(ScreenWidth, 2) + Math.pow(ScreenHeigth, 2)));
     }
 
     private void setViewMatrix() {
@@ -81,9 +77,5 @@ public class Camera {
 
     public float[] getProjectionMatrix() {
         return ProjectionMatrix;
-    }
-
-    public float getDiagonalLength() {
-        return diagonalLength;
     }
 }

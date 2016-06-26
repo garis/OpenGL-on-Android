@@ -76,9 +76,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         changeState(STATUS.LOADING);
 
         //z buffer
+        //di default è GL_LESS
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        //GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-        //GLES20.glDepthMask(true);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        GLES20.glDepthMask(true);
 
         /*culling.....if you want
         GLES20.glFrontFace(GLES20.GL_CCW );
@@ -167,7 +168,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                         //il thread principale deve caricare i tutto in OpenGL
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
-                    } else if (heads[i].state() != 4)
+                    } else if (heads[i].state() != Model3D.LOADING_COMPLETED)
                         //finchè non è tutto caricato rimane nella schermata di loading
                         flag = false;
                 }

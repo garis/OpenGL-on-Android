@@ -20,18 +20,28 @@ import theugateam.progetto.Utils.Vector3;
  */
 public class Model3D {
 
-    //2==> pronto per passare i dati ad OpenGL
-    //4==> tutto caricato
-    //altri valori ==> operazioni in corso
-    protected int resourceLoaded;
+    //region TRACCIA_CARICAMENTO
 
-    protected String mName= "";
+    //2==> pronto per passare i dati ad OpenGL
+    //4=LOADING_COMPLETED==> tutto caricato
+    //altri valori ==> operazioni in corso
+    protected int resourcesLoaded;
+
+    public static final int LOADING_COMPLETED = 4;
+
+    //endregion
+
+    //region BUFFER_VETTORI_BITMAP_PER_DATI
+
+    protected int drawListBufferCapacity;
+
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 3;
+    private final int COORDS_PER_VERTEX = 3;
     private final int vertexStride = COORDS_PER_VERTEX * 0; //n° byte totale al caricamento riempirà la varibile con il valore corretto
     private final int UV_COORDS_PER_VERTEX = 2;
     float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
     Bitmap bitmap;
+
     //buffers
     protected FloatBuffer vertexBuffer;
     protected FloatBuffer uvBuffer;
@@ -40,8 +50,9 @@ public class Model3D {
     private float[] SquareCoords;
     private float[] UVCoords;
     private int[] DrawOrder;
+    //endregion
 
-    //GPU pointers
+    //region SHADER
     protected int mProgram = 0;
     protected int mPositionHandle = 0;
     protected int mMVPMatrixHandle = 0;
@@ -49,8 +60,9 @@ public class Model3D {
     protected int textureCoordinateHandle = 0;
     protected int textureUniformHandle = 0;
     protected int texture[] = {0};
+    //endregion
 
-    protected int drawListBufferCapacity;
+    //region MANIPOLAZIONE_OGGETTO
 
     private Vector3 position;
     private Vector3 scale;
@@ -61,23 +73,31 @@ public class Model3D {
     protected float[] mvpMatrix = new float[16];
 
     private float[] lastRotation = new float[16];
-
     protected float[] accumulatedRotation = new float[16];
     protected float[] rotationMatrix = new float[16];
 
+    //endregion
+
+    protected String mName = "";
+
     public Model3D(Context context) {
-        // prepare shaders and OpenGL program
+
+        //preleva da file e compila il vertex shader e il fragment shader
         int vertexShader = MyGLRenderer.loadShader(
                 GLES20.GL_VERTEX_SHADER, MyGLRenderer.readTextFileFromResource(context,R.raw.vertexshader));
         int fragmentShader = MyGLRenderer.loadShader(
                 GLES20.GL_FRAGMENT_SHADER,  MyGLRenderer.readTextFileFromResource(context,R.raw.fragmentshader));
 
-        mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
-        GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
-        GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
-        GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
+        //creiamo un nuvo programma OpenGL
+        mProgram = GLES20.glCreateProgram();
+        //gli attacchiamo un vertex shader....
+        GLES20.glAttachShader(mProgram, vertexShader);
+        //...e un fragment shader
+        GLES20.glAttachShader(mProgram, fragmentShader);
+        //e infine rendiamo il programma usabile da OpenGL
+        GLES20.glLinkProgram(mProgram);
 
-        resourceLoaded = 0;
+        resourcesLoaded = 0;
 
         position = new Vector3(0, 0, 0);
         scale = new Vector3(1, 1, 1);
@@ -85,7 +105,6 @@ public class Model3D {
 
         Matrix.setIdentityM(accumulatedRotation, 0);
         Matrix.setIdentityM(modelMatrix, 0);
-
 
         updatePointerVariables();
     }
@@ -97,36 +116,6 @@ public class Model3D {
         textureUniformHandle = GLES20.glGetUniformLocation(mProgram, "s_texture");
         textureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_texCoord");
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-    }
-
-    // trasferisce la Bitmap della Texture in memoria prelevandola da un file
-    public void saveBitmap(Context context, int id) {
-        bitmap = BitmapFactory.decodeResource(context.getResources(), id);
-        resourceLoaded++;
-    }
-
-    // copia il bitmap dalla memoria dell'app a quella di OpenGL
-    public void loadFromSavedBitmap() {
-        if (bitmap != null) {
-            // genera un nuovo puntatore ad una texture
-            GLES20.glGenTextures(1, texture, 0);
-            //lega questo puntatore ad una variabile disponibile all'app
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
-
-            //setta alcuni parametri che diranno a OpenGL come trattare la texture
-            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-            //caricamento della texture
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-            // libera memoria
-            bitmap.recycle();
-        }
-        resourceLoaded++;
-    }
-
-    //per oggetti non troppo complessi si può usare questo mwtodo per caricare delle texture senza pasare per thread ausiliari
-    public void loadGLTexture(Context context, int id) {
-        saveBitmap(context, id);
-        loadFromSavedBitmap();
     }
 
     //carica i vettori xcontenenti tutta la geometria di un modello dentro a delle strutture dati usabili da OpenGL
@@ -161,42 +150,93 @@ public class Model3D {
         uvBuffer.put(UVCoords);
         uvBuffer.position(0);
 
-        resourceLoaded++;
+        resourcesLoaded++;
     }
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
+        //preparativi per generare la matrice di model-view-projection....
         Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
 
+        //copia mvpMatrix in tempMatrix
         System.arraycopy(mvpMatrix, 0, tempMatrix, 0, 16);
 
+        //... moltiplica accumulatedRotation con tempMatrix per dar vita a mvpMatrix
         Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
 
-        // Add program to OpenGL environment
+        // attiva il programma che istruirà OpenGL su il tipo di operazioni da fare
         GLES20.glUseProgram(mProgram);
 
-        GLES20.glEnableVertexAttribArray(mPositionHandle);    //Enable a handle to the triangle vertices
+        //preparazione per il passaggio delle coordinate dei vertici
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
 
+        //manda a OpenGL i vertici
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);    // Prepare the triangle coordinate data
 
+        //istruisce il fragment shader riguardo al colore da applicare
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
 
+        //preparazione per il passaggio delle coordinate della texture
         GLES20.glVertexAttribPointer(textureCoordinateHandle, UV_COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, uvBuffer);
 
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
 
+        //attiva l'uso delle texture
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        //attiva la texture in texture[0]
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        //comunica al fragment shader di usare la texture precedentemente attivata
         GLES20.glUniform1i(textureUniformHandle, 0);
 
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);//Apply the projection and view transformation
+        //manda al vertex shader la matrice di model-view-projection
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, drawListBuffer);//Draw
+        //disegna l'oggetto a triangoli nell'ordine specificato da drawListBuffer
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawListBufferCapacity, GLES20.GL_UNSIGNED_INT, drawListBuffer);
 
-        GLES20.glDisableVertexAttribArray(mPositionHandle);// Disable vertex array
-        GLES20.glDisableVertexAttribArray(textureCoordinateHandle);// Disable vertex array
+        //disabilita gli array di posizone dei vertici e di texture precedentemente attivati
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(textureCoordinateHandle);
     }
+
+    //region TEXTURE
+
+    //metodo possibilmente chiamato da un thread ausiliario o comunque non dal main thread di OpenGL
+    // trasferisce la Bitmap della Texture in memoria prelevandola da un file
+    public void saveBitmap(Context context, int id) {
+        bitmap = BitmapFactory.decodeResource(context.getResources(), id);
+        resourcesLoaded++;
+    }
+
+    // copia il bitmap dalla memoria dell'app a quella di OpenGL
+    public void loadFromSavedBitmap() {
+        if (bitmap != null) {
+            // genera un nuovo puntatore ad una texture
+            GLES20.glGenTextures(1, texture, 0);
+            //lega questo puntatore ad una variabile disponibile all'app
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+
+            //setta alcuni parametri che diranno a OpenGL come trattare la texture
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            //caricamento della texture
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+            // libera memoria
+            bitmap.recycle();
+        }
+        resourcesLoaded++;
+    }
+
+    //per oggetti non troppo complessi si può usare questo mwtodo per caricare delle texture
+    //senza pasare per thread diverso da quello di OpenGL
+    public void loadGLTexture(Context context, int id) {
+        saveBitmap(context, id);
+        loadFromSavedBitmap();
+    }
+
+    //endregion
+
+    //region VERTICI
 
     //carica la geometria prendendola da un .obj e operando dal thread principale
     public void loadFromOBJ(Context context, String filename) {
@@ -204,7 +244,8 @@ public class Model3D {
         loadObjData();
     }
 
-    //carica la geometria prendendola da un .obj e usando un thread ausiliario
+    //metodo possibilmente chiamato da un thread ausiliario o comunque non dal main thread di OpenGL
+    //carica la geometria prendendola da un .obj e usando
     public void loadFromOBJThreaded(Context context, String filename) {
         OBJParser objparser = new OBJParser();
         objparser.loadFromOBJ(context, filename);
@@ -212,16 +253,20 @@ public class Model3D {
         UVCoords = objparser.getUVVertices();
         DrawOrder = objparser.getOrder();
 
-        resourceLoaded++;
+        resourcesLoaded++;
     }
 
-    // carica la geometria in strutture dati usabili dfa OpenGL
+    // carica la geometria in strutture dati usabili da OpenGL
     public void loadObjData(){
         this.updateGeometryAndUVs(SquareCoords, UVCoords, DrawOrder);
         SquareCoords=new float[0];
         UVCoords=new  float[0];
         DrawOrder=new int[0];
     }
+
+    //endregion
+
+    //region MAIPOLAZIONE_OGGETTO
 
     public void moveScaleRotate(Vector3 position, Vector3 scale, Vector3 rotationVector) {
         Matrix.setIdentityM(modelMatrix, 0);
@@ -277,6 +322,10 @@ public class Model3D {
         angle.z(angle.x() + rotationVector.z());
     }
 
+    //endregion
+
+    //region VARIE
+
     public float getRotation(int n) {
         switch (n) {
             case 0:
@@ -298,7 +347,7 @@ public class Model3D {
     }
 
     public int state() {
-        return resourceLoaded;
+        return resourcesLoaded;
     }
 
     public void setName(String Name)
@@ -311,5 +360,7 @@ public class Model3D {
     {
         return mName;
     }
+
+    //endregion
 
 }
