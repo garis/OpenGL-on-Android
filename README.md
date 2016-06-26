@@ -29,4 +29,4 @@ Per creare tutte le iconcine che l'app necessita io ho usato https://romannurik.
 7. Pag 124 della documentazione di Qualcomm per il multithreading.
 
 # Prestazioni #
-Da un veloce test sembra che disegnare la pigna con la classe Model3D impiega all'incirca 20000000 ns mentre con la classe Model3DVBO impiega 70000 ns (la differenza è enorme)
+VBO impegna meno la cpu
