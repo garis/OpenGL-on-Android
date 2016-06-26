@@ -2,7 +2,6 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 /**
  * questa sovrascrittura della classe Model3D implementa i vertex buffer
@@ -68,18 +67,12 @@ public class Model3DVBO extends Model3D {
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    //draw molto simile a quella del Model3D solo che usa i Vertex Buffer Object (VBO) invece dei
+    //buffer di java
     @Override
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
 
-        float[] mvpMatrix = new float[16];
-
-
-        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
-
-        System.arraycopy(mvpMatrix, 0, tempMatrix, 0, 16);
-
-        Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
+        compute_mvpMatrix(mViewMatrix, mProjectionMatrix);
 
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);

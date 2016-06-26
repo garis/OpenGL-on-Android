@@ -153,8 +153,7 @@ public class Model3D {
         resourcesLoaded++;
     }
 
-    public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
-
+    protected void compute_mvpMatrix(float[] mViewMatrix, float[] mProjectionMatrix) {
         //preparativi per generare la matrice di model-view-projection....
         Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
@@ -164,6 +163,11 @@ public class Model3D {
 
         //... moltiplica accumulatedRotation con tempMatrix per dar vita a mvpMatrix
         Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
+    }
+
+    public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
+
+        compute_mvpMatrix(mViewMatrix, mProjectionMatrix);
 
         // attiva il programma che istruirà OpenGL su il tipo di operazioni da fare
         GLES20.glUseProgram(mProgram);

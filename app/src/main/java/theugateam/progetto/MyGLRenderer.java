@@ -86,10 +86,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);*/
 
+        //inizializza la camera
         camera = new Camera();
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
 
+        //inizializza gli oggetti presenti nella schermata di caricamento
         loadingGear = new Model3D(context);
         loadingGear.loadFromOBJ(context, "newgear");
         loadingGear.loadGLTexture(context, R.drawable.white);
@@ -109,6 +111,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         selectedHeads = new Model3DVBO(context);
         heads = new Model3DVBO[3];
 
+        //inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
+        //le texture usando thread asincroni
         heads[0] = new Model3DVBO(context);
         heads[0].setName("nastro");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
