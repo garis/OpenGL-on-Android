@@ -1,17 +1,14 @@
-/* This matrix member variable provides a hook to manipulate
-the coordinates of the objects that use this vertex shader*/
+//matrice per muovere il vertice
 uniform mat4 uMVPMatrix;
+//posizioe del vertice...
 attribute vec4 vPosition;
-/*texture location as input*/
+//... e relativo punto nella texture...
 attribute vec2 a_texCoord;
-/*...and gives it to the fragment shader */
+//...che verrà passato al fragment shader
 varying vec2 v_texCoord;
 void main() {
-    /*
-    The matrix must be included as a modifier of gl_Position.
-    Note that the uMVPMatrix factor *must be first* in order
-    for the matrix multiplication product to be correct.
-    */
+    //muove il vertice servendosi della matrice uMVPMatrix
     gl_Position = uMVPMatrix * vPosition;
+    //fa sapere al fragment che punto nella texture va usato per questo vertice
     v_texCoord = a_texCoord;
 }
