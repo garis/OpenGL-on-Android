@@ -55,8 +55,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 unused, int width, int height) {
-        // Adjust the viewport based on geometry changes,
-        // such as screen rotation
+        //aggiusta il viewport in base alla dimensione dello schermo
 
         GLES20.glViewport(0, 0, width, height);
 
@@ -73,7 +72,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         //z buffer
         //di default è GL_LESS
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+        GLES20.glDepthFunc(GLES20.GL_LESS);
         GLES20.glDepthMask(true);
 
         /*culling.....if you want
@@ -222,7 +221,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return STATE;
     }
 
-    //region user touch action
+    //region AZIONI_TOUCH
 
     //decide quale testa è da ruotare
     public void selectHeadRotation(Vector3 screenCoords) {
@@ -236,7 +235,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    //return the scale of the selected object
+    //seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
     public float selectedForScale(Vector3 point1, Vector3 point2) {
         //se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
         if (STATE == STATUS.DRAWING) {
@@ -276,7 +275,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     //endregion
 
-    //region OPENGL shader & error stuff
+    //region OPENGL
 
     /**
      * Utility method for compiling a OpenGL shader.

@@ -2,6 +2,7 @@ package theugateam.progetto.Utils;
 
 import android.opengl.Matrix;
 
+//classe di supoorto per gestire la camera (posizione e orientamento) di OpenGL e le sue matrici
 public class Camera {
 
     private float _cameraX;
@@ -16,9 +17,6 @@ public class Camera {
 
     private float[] ProjectionMatrix;
 
-    //Model View Projection Matrix
-    private float[] MVPMatrix;
-
     private float[] ViewMatrix;
 
     public Camera() {
@@ -30,7 +28,6 @@ public class Camera {
         _cameraLAZ = 0;
 
         ProjectionMatrix = new float[16];
-        MVPMatrix = new float[16];
         ViewMatrix = new float[16];
 
         ScreenWidth = 0;
@@ -68,7 +65,6 @@ public class Camera {
 
     private void setViewMatrix() {
         Matrix.setLookAtM(ViewMatrix, 0, _cameraX, _cameraY, _cameraZ, _cameraLAX, _cameraLAY, _cameraLAZ, 0f, 1.0f, 0.0f);
-        Matrix.multiplyMM(MVPMatrix, 0, ProjectionMatrix, 0, ViewMatrix, 0);
     }
 
     public float[] getViewMatrix() {
