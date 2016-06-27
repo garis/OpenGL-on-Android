@@ -34,7 +34,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         mScaleFactor = 1;
 
-        // Settta il render per disegnare nella GLSurfaceView
+        // Setta il render per disegnare nella GLSurfaceView
         mRenderer = new MyGLRenderer();
         mRenderer.initialize(context);
         setRenderer(mRenderer);
