@@ -272,6 +272,7 @@ public class Model3D {
 
     //region MAIPOLAZIONE_OGGETTO
 
+    //muove scala e ruota l'oggetto
     public void moveScaleRotate(Vector3 position, Vector3 scale, Vector3 rotationVector) {
         Matrix.setIdentityM(modelMatrix, 0);
         move(position);
@@ -279,6 +280,7 @@ public class Model3D {
         rotate(rotationVector);
     }
 
+    //scala l'oggetto
     private void scale(Vector3 newScale) {
         Matrix.setIdentityM(modelMatrix, 0);
 
@@ -292,16 +294,21 @@ public class Model3D {
         rotate(new Vector3(0, 0, 0));
     }
 
+    //ritorna la scala globale
     public float getGlobalScale()
     {
+        //per convenzione se la scala deve essere su tutti e tre gli assi
+        //allora si considera scale.x() per tutti gli assi
         return (float) scale.x();
     }
 
+    //setta la stessa scala su tutti gli assi
     public void setGlobalScale(float newScale)
     {
         scale(new Vector3(newScale,newScale,newScale));
     }
 
+    //muove l'oggetto
     private void move(Vector3 newPosition) {
         position.x(newPosition.x());
         position.y(newPosition.y());
@@ -310,17 +317,23 @@ public class Model3D {
         Matrix.translateM(modelMatrix, 0, (float) position.x(), (float) position.y(), (float) position.z());
     }
 
-    //in gradi
+    //ruota l'oggetto
+    //angoli in gradi
     public void rotate(Vector3 rotationVector) {
+        //setta la matrice lastRotation come matrice identità...
         Matrix.setIdentityM(lastRotation, 0);
+        //...gli applica la rotazione...
         Matrix.rotateM(lastRotation, 0, (float) rotationVector.x(), 1.0f, 0.0f, 0.0f);
         Matrix.rotateM(lastRotation, 0, (float) rotationVector.y(), 0.0f, 1.0f, 0.0f);
         Matrix.rotateM(lastRotation, 0, (float) rotationVector.z(), 0.0f, 0.0f, 1.0f);
 
+        //...applica questa nuova rotazione alla matrice di rotazione complessiva...
         Matrix.multiplyMM(rotationMatrix, 0, lastRotation, 0, accumulatedRotation, 0);
 
+        //...e salva questa nuova matrice di rotazione in accumulatedRotation che verrà usata nel rendering
         System.arraycopy(rotationMatrix, 0, accumulatedRotation, 0, 16);
 
+        //come ultima cosa tiene traccia degli angoli di rotazione sui 3 assi
         angle.x(angle.x() + rotationVector.x());
         angle.y(angle.y() + rotationVector.y());
         angle.z(angle.x() + rotationVector.z());
