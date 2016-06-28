@@ -75,7 +75,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glDepthFunc(GLES20.GL_LESS);
         GLES20.glDepthMask(true);
 
-        /*culling.....if you want
+        /*culling - graficamente rende peggio
         GLES20.glFrontFace(GLES20.GL_CCW );
         GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);*/
@@ -163,7 +163,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 for (i = 0; i < heads.length; i++) {
                     if (heads[i].state() == 2) {
                         //una volta che il thread di appoggio ha caricato texture e geometria
-                        //il thread principale deve caricare i tutto in OpenGL
+                        //il thread principale deve caricare il tutto in OpenGL
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
                     } else if (heads[i].state() != Model3D.LOADING_COMPLETED)
@@ -207,6 +207,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private void changeState(STATUS status) {
         STATE = status;
         startTime = System.nanoTime() / 10000000f;
+        // potrebbe servire in sviluppi futuri per eseguire azioni al cambio di stato
         switch (status) {
 
             case LOADING:
@@ -224,7 +225,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     //region AZIONI_TOUCH
 
     //decide quale testa è da ruotare
-    public void selectHeadRotation(Vector3 screenCoords) {
+    public void selectHeadSingleTouch(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING) {
             touchDownCoords = screenCoords;
             if (touchDownCoords.x() / camera.getScreenWidth() < 0.33f)
@@ -271,6 +272,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             selectedHeads.rotate(vector);
             touchDownCoords = screenCoords;
         }
+    }
+
+    public void resetHead()
+    {
+        selectedHeads.resetRotation(new Vector3(90,0,0));
+        selectedHeads.setGlobalScale(1.0f);
     }
 
     //endregion

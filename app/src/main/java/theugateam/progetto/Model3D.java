@@ -270,7 +270,7 @@ public class Model3D {
 
     //endregion
 
-    //region MAIPOLAZIONE_OGGETTO
+    //region MANIPOLAZIONE_OGGETTO
 
     //muove scala e ruota l'oggetto
     public void moveScaleRotate(Vector3 position, Vector3 scale, Vector3 rotationVector) {
@@ -280,6 +280,21 @@ public class Model3D {
         rotate(rotationVector);
     }
 
+    //reset rotazione al valore iniziale
+    public void resetRotation(Vector3 rotationVector)
+    {
+        //setta la matrice lastRotation come matrice identità...
+        Matrix.setIdentityM(accumulatedRotation, 0);
+        //...gli applica la rotazione...
+        Matrix.rotateM(accumulatedRotation, 0, (float) rotationVector.x(), 1.0f, 0.0f, 0.0f);
+        Matrix.rotateM(accumulatedRotation, 0, (float) rotationVector.y(), 0.0f, 1.0f, 0.0f);
+        Matrix.rotateM(accumulatedRotation, 0, (float) rotationVector.z(), 0.0f, 0.0f, 1.0f);
+
+        //come ultima cosa tiene traccia degli angoli di rotazione sui 3 assi
+        angle.x(rotationVector.x());
+        angle.y(rotationVector.y());
+        angle.z(rotationVector.z());
+    }
     //scala l'oggetto
     private void scale(Vector3 newScale) {
         Matrix.setIdentityM(modelMatrix, 0);

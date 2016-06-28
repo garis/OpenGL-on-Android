@@ -2,6 +2,7 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -61,6 +62,15 @@ public class MyGLSurfaceView extends GLSurfaceView {
             mScaleDetector.onTouchEvent(e);
             mDoubleTapDetector.onTouchEvent(e);
 
+
+            if(doubleTapOccoured) {
+                Log.d("DEBUG","doppio tocco");
+                int pointerIndex = e.findPointerIndex((e.getPointerId(0)));
+                mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
+                mRenderer.resetHead();
+            }
+
+
             //se c'è un solo tocco e non stai zoomando, interpretarlo come rotazione
             if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
 
@@ -77,7 +87,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                             //troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
-                            mRenderer.selectHeadRotation(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
+                            mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         } else if (!doubleTapOccoured) {
                             //ruotiamo solo se non è stato rilevato un double tap (che implica uno zoom)
                             pointerIndex = e.findPointerIndex(mActivePointerId);
