@@ -2,7 +2,7 @@ package theugateam.progetto.Utils;
 
 import android.opengl.Matrix;
 
-//classe di supoorto per gestire la camera (posizione e orientamento) di OpenGL e le sue matrici
+// classe di supoorto per gestire la camera (posizione e orientamento) di OpenGL e le sue matrici
 public class Camera {
 
     private float _cameraX;
@@ -56,6 +56,8 @@ public class Camera {
         setViewMatrix();
     }
 
+    // setta la matrice che servirà a proiettare i punti nello spazio tridimensionale
+    // nel piano bidimensionale dello schermo
     public void setProjectionMatrix(float screenWidth, float screenHeight, float ZNear, float ZFar) {
         ScreenWidth = screenWidth;
         ScreenHeigth = screenHeight;
@@ -63,8 +65,9 @@ public class Camera {
         Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
     }
 
+    // setta la matrice che rappresenta la camera che andrà ad inquadrare la scena
     private void setViewMatrix() {
-        Matrix.setLookAtM(ViewMatrix, 0, _cameraX, _cameraY, _cameraZ, _cameraLAX, _cameraLAY, _cameraLAZ, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(ViewMatrix, 0, _cameraX, _cameraY, _cameraZ, _cameraLAX, _cameraLAY, _cameraLAZ, 0.0f, 1.0f, 0.0f);
     }
 
     public float[] getViewMatrix() {

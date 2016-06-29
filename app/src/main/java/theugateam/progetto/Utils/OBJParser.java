@@ -12,6 +12,7 @@ import java.util.List;
 
 public class OBJParser {
 
+    // inizializza il tutto come se fosse un quadrato
     private float[] V = {
             -1.0f, 1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
@@ -24,15 +25,15 @@ public class OBJParser {
             1.0f, 1.0f,
             1.0f, 0.0f};
 
-    private int F[] = {0, 1, 2, 0, 2, 3}; // order to draw vertices
+    private int F[] = {0, 1, 2, 0, 2, 3};
 
     private List<String> file;
 
     public OBJParser() {
     }
 
-    //carica ogni riga del file dentro la struttura "file"
-    //ritorna vero se ha caricato qualcosa
+    // carica ogni riga del file dentro la struttura "file"
+    // ritorna vero se ha caricato qualcosa
     public boolean loadFromOBJ(Context context, String name) {
         BufferedReader br = null;
         String sCurrentLine;
@@ -45,7 +46,7 @@ public class OBJParser {
 
             br = new BufferedReader(inputStreamReader);
             while ((sCurrentLine = br.readLine()) != null) {
-                //legge ogni riga saltando quelle che contengono commenti (contrassegnate da #)
+                // legge ogni riga saltando quelle che contengono commenti (contrassegnate da #)
                 if ((sCurrentLine.length() >= 1) && (sCurrentLine.charAt(0) != '#')) {
                     file.add(sCurrentLine);
                 }
@@ -65,44 +66,44 @@ public class OBJParser {
         return flag;
     }
 
-    //costruisce i dati della geometria dell'oggetto analizzado il file precedentemente caricato
+    // costruisce i dati della geometria dell'oggetto analizzado il file precedentemente caricato
     private void createVertices() {
         List<Point> VList = new ArrayList<>();
         List<Point> VTList = new ArrayList<>();
         List<Integer> f0List = new ArrayList<>();
         List<Integer> f1List = new ArrayList<>();
 
-        //per ogni riga
+        // per ogni riga
         for (String aFile : file) {
-            //separa le componenti attraverso il carattere speciale "spazio"
+            // separa le componenti attraverso il carattere speciale "spazio"
             String[] str = aFile.split("\\s+");
 
-            //str[0] identifica il tipo di dato che la riga contiene
-            //se str[0].length() == 1 sicuramente non potrà contenere "vt"
+            // str[0] identifica il tipo di dato che la riga contiene
+            // se str[0].length() == 1 sicuramente non potrà contenere "vt"
             if (str[0].length() == 1) {
-                //se è un vertice (contrassegnato da "v")
+                // se è un vertice (contrassegnato da "v")
                 if (str[0].charAt(0) == 'v') {
                     VList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), Float.parseFloat(str[3])));
                 }
-                //se è una riga che dice di quali punti (sia vertici sia texture) è composto ogni triangolo
-                //(contrassegnato da "f")
+                // se è una riga che dice di quali punti (sia vertici sia texture) è composto ogni triangolo
+                // (contrassegnato da "f")
                 else if (str[0].charAt(0) == 'f') {
                     for (int i = 1; i < str.length; i++) {
                         String[] item = str[i].split("/");
-                        //vertici
+                        // vertici
                         f0List.add(Integer.parseInt(item[0]) - 1);
-                        //indici e vertici della texture
+                        // indici e vertici della texture
                         f1List.add(Integer.parseInt(item[1]) - 1);
                     }
                 }
             }
-            //se è una riga che contiene coordinate relative alla texture (contrassegnato da "vt")
+            // se è una riga che contiene coordinate relative alla texture (contrassegnato da "vt")
             else if ((str[0].length() == 2) && (str[0].charAt(0) == 'v') && (str[0].charAt(1) == 't')) {
                 VTList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), 0));
             }
         }
 
-        //ora ordina vertici e vertici texture in modo da rispettare gli indici
+        // ora ordina vertici e vertici texture in modo da rispettare gli indici
         V = new float[f0List.size() * 3];
         VT = new float[f0List.size() * 2];
         F = new int[f0List.size()];
@@ -113,23 +114,23 @@ public class OBJParser {
         int countV = 0;
         int countVT = 0;
         int count0 = 0;
-        //per ogni triangolo che ha trovato ("face" nel file .obj)...
+        // per ogni triangolo che ha trovato ("face" nel file .obj)...
         while (iterator0.hasNext()) {
             int n0 = iterator0.next();
             int n1 = iterator1.next();
 
-            //...inserisce sequenzialmente i tre vertici che compongono quel triangolo...
+            // ...inserisce sequenzialmente i tre vertici che compongono quel triangolo...
             V[countV++] = VList.get(n0).getX();
             V[countV++] = VList.get(n0).getY();
             V[countV++] = VList.get(n0).getZ();
 
-            //...e le sue relative coordinate di texture....
+            // ...e le sue relative coordinate di texture....
             VT[countVT++] = VTList.get(n1).getX();
-            //...facendo attenzione al fatto che OBJ considera (0, 0) in alto a sinistra della texture
-            //mentre OpenGL considera (0, 0) in basso a sinistra...
+            // ...facendo attenzione al fatto che OBJ considera (0, 0) in alto a sinistra della texture
+            // mentre OpenGL considera (0, 0) in basso a sinistra...
             VT[countVT++] = 1 - VTList.get(n1).getY();
 
-            //...e crea il vettore che dice con che ordine devono essere disegnati i punti
+            // ...e crea il vettore che dice con che ordine devono essere disegnati i punti
             F[count0] = count0;
             count0++;
         }
@@ -150,7 +151,7 @@ public class OBJParser {
     }
 
 
-    //classe di supporto che rappresenta un punto
+    // classe di supporto che rappresenta un punto
     class Point {
 
         float x, y, z;

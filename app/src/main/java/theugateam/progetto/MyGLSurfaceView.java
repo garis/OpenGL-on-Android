@@ -18,13 +18,13 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
 
-    //rilevatore di gesture relative alla scala
+    // rilevatore di gesture relative alla scala
     private ScaleGestureDetector mScaleDetector;
-    //rilevatore di gesture relative ad un doppio tap
-    //usato per impedire la rotazione di un oggetto subito prima che avvenga uno zoom eseguito con un dto solo
+    // rilevatore di gesture relative ad un doppio tap
+    // usato per impedire la rotazione di un oggetto subito prima che avvenga uno zoom eseguito con un dto solo
     private GestureDetector mDoubleTapDetector;
 
-    //scala rilevata da mScaleDetector
+    // scala rilevata da mScaleDetector
     private float mScaleFactor;
 
 
@@ -50,7 +50,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        //disabilità lo zoom con un singolo dito
+        // disabilità lo zoom con un singolo dito
         mScaleDetector.setQuickScaleEnabled(false);
         mDoubleTapDetector = new GestureDetector(context, new GestureDoubleTap());
     }
@@ -75,42 +75,42 @@ public class MyGLSurfaceView extends GLSurfaceView {
             }
 
 
-            //se c'è un solo tocco e non sto zoomando, interpretarlo come rotazione
+            // se c'è un solo tocco e non sto zoomando, interpretarlo come rotazione
             if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
 
-                //se il tocco dovesse passare da modalità "ruota" a modalità "zoom"
-                //il metodo che scala troverà un valore inziale su cui basarla
+                // se il tocco dovesse passare da modalità "ruota" a modalità "zoom"
+                // il metodo che scala troverà un valore inziale su cui basarla
                 scaleDetectorWasInProgress = false;
                 mScaleFactor = 1;
 
                 int pointerIndex;
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_MOVE:
-                        //se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
+                        // se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
                         if ((e.getPointerId(0) != mActivePointerId)) {
-                            //troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
+                            // troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         } else if (!doubleTapOccoured) {
-                            //ruotiamo solo se non è stato rilevato un double tap (che implica un reset)
+                            // ruotiamo solo se non è stato rilevato un double tap (che implica un reset)
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        //annulliamo la variabile che indica se è avvenuto un doppio tap...
+                        // annulliamo la variabile che indica se è avvenuto un doppio tap...
                         doubleTapOccoured = false;
-                        //...e permettiamo un nuovo possibile reset di un oggetto
+                        // ...e permettiamo un nuovo possibile reset di un oggetto
                         resetted = false;
                         mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                         break;
                 }
             } else
-            //logica per lo zoom
+            // logica per lo zoom
             {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-                //se è il primo tocco di una sequenza di tocchi per scalare un oggetto
+                // se è il primo tocco di una sequenza di tocchi per scalare un oggetto
                 if (!scaleDetectorWasInProgress) {
                     startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
                             new Vector3(e.getX(1), e.getY(1), 0));
@@ -119,8 +119,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
 
-                //ora facciamo in modo che la prossima volta che si entra qui, non ci si salvi una
-                //nuova scala di partenza
+                // ora facciamo in modo che la prossima volta che si entra qui, non ci si salvi una
+                // nuova scala di partenza
                 scaleDetectorWasInProgress = true;
             }
         }
@@ -142,8 +142,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            //resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
-            //rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
+            // resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
+            // rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
 
             mScaleFactor *= detector.getScaleFactor();
 

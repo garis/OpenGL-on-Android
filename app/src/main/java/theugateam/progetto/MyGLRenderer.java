@@ -55,7 +55,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 unused, int width, int height) {
-        //aggiusta il viewport in base alla dimensione dello schermo
+        // aggiusta il viewport in base alla dimensione dello schermo
 
         GLES20.glViewport(0, 0, width, height);
 
@@ -69,8 +69,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         changeState(STATUS.LOADING);
 
-        //z buffer
-        //di default è GL_LESS
+        // z buffer
+        // di default è GL_LESS
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LESS);
         GLES20.glDepthMask(true);
@@ -80,12 +80,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);*/
 
-        //inizializza la camera
+        // inizializza la camera
         camera = new Camera();
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
         this.camera.setCameraLookAt(new Vector3(0, 0, 0));
 
-        //inizializza gli oggetti presenti nella schermata di caricamento
+        // inizializza gli oggetti presenti nella schermata di caricamento
         loadingGear = new Model3D(context);
         loadingGear.loadFromOBJ(context, "newgear");
         loadingGear.loadGLTexture(context, R.drawable.white);
@@ -105,8 +105,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         selectedHeads = new Model3DVBO(context);
         heads = new Model3DVBO[3];
 
-        //inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
-        //le texture usando thread asincroni
+        // inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
+        // le texture usando thread asincroni
         heads[0] = new Model3DVBO(context);
         heads[0].setName("nastro");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
@@ -162,12 +162,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 boolean flag = true;
                 for (i = 0; i < heads.length; i++) {
                     if (heads[i].state() == 2) {
-                        //una volta che il thread di appoggio ha caricato texture e geometria
-                        //il thread principale deve caricare il tutto in OpenGL
+                        // una volta che il thread di appoggio ha caricato texture e geometria
+                        // il thread principale deve caricare il tutto in OpenGL
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
                     } else if (heads[i].state() != Model3D.LOADING_COMPLETED)
-                        //finchè non è tutto caricato rimane nella schermata di loading
+                        // finchè non è tutto caricato rimane nella schermata di loading
                         flag = false;
                 }
                 if (flag)
@@ -190,13 +190,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         switch (STATE) {
 
             case LOADING:
-                //disegna gli elementi appartenenti alla schermata di looading
+                // disegna gli elementi appartenenti alla schermata di looading
                 loadingGear.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 loadingText.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 break;
 
             case DRAWING:
-                //disegna gli elementi appartenenti alla schermata principale
+                // disegna gli elementi appartenenti alla schermata principale
                 for (i = 0; i < heads.length; i++) {
                     heads[i].draw(camera.getViewMatrix(), camera.getProjectionMatrix());
                 }
@@ -222,9 +222,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return STATE;
     }
 
-    //region AZIONI_TOUCH
+    // region AZIONI_TOUCH
 
-    //decide quale testa è da ruotare
+    // decide quale testa è da ruotare
     public void selectHeadSingleTouch(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING) {
             touchDownCoords = screenCoords;
@@ -236,9 +236,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    //seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
+    // seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
     public float selectedForScale(Vector3 point1, Vector3 point2) {
-        //se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
+        // se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
         if (STATE == STATUS.DRAWING) {
             Vector3 mid_point = new Vector3(
                     (point2.x() + point1.x()) / 2.0f,
@@ -256,13 +256,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    //imposta la nuova scala all'oggetto d'interesse
+    // imposta la nuova scala all'oggetto d'interesse
     public void zoom(float scale) {
         if (scale > 0)
             selectedHeads.setGlobalScale(scale);
     }
 
-    //imposta la nuova rotazione all'oggetto d'interesse
+    // imposta la nuova rotazione all'oggetto d'interesse
     public void rotateHead(Vector3 screenCoords) {
         if (STATE == STATUS.DRAWING && touchDownCoords != null) {
             Vector3 vector = new Vector3((screenCoords.y() - touchDownCoords.y()) / camera.getScreenWidth() * ANGLE_MAGNITUDE
@@ -280,9 +280,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         selectedHeads.setGlobalScale(1.0f);
     }
 
-    //endregion
+    // endregion
 
-    //region OPENGL
+    // region OPENGL
 
     /**
      * Utility method for compiling a OpenGL shader.
@@ -326,7 +326,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    //legge e ritorna su stringa il codice dello shader prelevato da un file resourceId relativo ad un context
+    // legge e ritorna su stringa il codice dello shader prelevato da un file resourceId relativo ad un context
     public static String readTextFileFromResource(Context context,
                                                   int resourceId) {
         StringBuilder body = new StringBuilder();
@@ -348,5 +348,5 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
         return body.toString();
     }
-    //endregion
+    // endregion
 }

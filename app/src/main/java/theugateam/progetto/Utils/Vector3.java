@@ -1,5 +1,6 @@
 package theugateam.progetto.Utils;
 
+// classe utile per rappresentare vettori o punti
 public class Vector3 {
 
     private double xyz[] = new double[3];
