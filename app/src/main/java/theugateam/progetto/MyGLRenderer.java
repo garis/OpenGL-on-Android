@@ -128,8 +128,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 new Vector3(90, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "pigna");
-                heads[1].saveBitmap(context, R.drawable.tex);
+                heads[1].loadFromOBJThreaded(context, "mobius");
+                heads[1].saveBitmap(context, R.drawable.mobius);
             }
         };
 
@@ -142,8 +142,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 new Vector3(90, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
-                heads[2].loadFromOBJThreaded(context, "kleinbottle");
-                heads[2].saveBitmap(context, R.drawable.kleinbottle);
+                heads[2].loadFromOBJThreaded(context, "mobius");
+                heads[2].saveBitmap(context, R.drawable.mobius);
             }
         };
 

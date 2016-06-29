@@ -44,6 +44,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mScaleDetector.setQuickScaleEnabled(false);
         mDoubleTapDetector = new GestureDetector(context, new GestureDoubleTap());
     }
 
@@ -53,6 +54,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
 
+    private boolean resetted = false;
+
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
@@ -61,13 +64,14 @@ public class MyGLSurfaceView extends GLSurfaceView {
             // chiamo ScaleGestureDetector per ispezionare l'evento appena accaduto
             mScaleDetector.onTouchEvent(e);
             mDoubleTapDetector.onTouchEvent(e);
-
-
-            if(doubleTapOccoured) {
+            // toppio tap per tornare alla situazione iniziale
+            if (doubleTapOccoured && !resetted)
+            {
                 Log.d("DEBUG","doppio tocco");
                 int pointerIndex = e.findPointerIndex((e.getPointerId(0)));
                 mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                 mRenderer.resetHead();
+                resetted = true;
             }
 
 
@@ -97,14 +101,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     case MotionEvent.ACTION_UP:
                         doubleTapOccoured = false;
                         mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+                        resetted = false;
                         break;
                 }
             } else
             //logica per lo zoom
             {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-                //se è il primo tocco di una sequenza di tocca per scalare un oggetto
-                if (!scaleDetectorWasInProgress) {
+                //se è il primo tocco di una sequenza di tocchi per scalare un oggetto
+                if (!scaleDetectorWasInProgress)
+                {
                     //se si sta scalando l'oggetto usando 2 dita
                     if (e.getPointerCount() >= 2) {
                         startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
@@ -112,10 +118,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     }
                     //oppure se si sta usando una "scala a trascinamento"
                     //cioè un tap seguito da uno slide subito dopo
-                    else {
-                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                                new Vector3(e.getX(0), e.getY(0), 0));
-                    }
+
+                    //else {
+                    //    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                    //            new Vector3(e.getX(0), e.getY(0), 0));
+                    //}
                 }
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
