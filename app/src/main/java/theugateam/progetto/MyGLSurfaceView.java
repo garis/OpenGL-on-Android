@@ -27,6 +27,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
     //scala rilevata da mScaleDetector
     private float mScaleFactor;
 
+
+    private float startingScale = 1;
+    private boolean scaleDetectorWasInProgress = false;
+    public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+    private boolean resetted = false;
+
     public MyGLSurfaceView(Context context) {
         super(context);
 
@@ -44,17 +50,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        //disabilità lo zoom con un singolo dito
         mScaleDetector.setQuickScaleEnabled(false);
         mDoubleTapDetector = new GestureDetector(context, new GestureDoubleTap());
     }
-
-    private float startingScale = 1;
-
-    private boolean scaleDetectorWasInProgress = false;
-
-    public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-
-    private boolean resetted = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -63,11 +62,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
             // chiamo ScaleGestureDetector per ispezionare l'evento appena accaduto
             mScaleDetector.onTouchEvent(e);
+            // chiamo il rilevatore di doppi tap per ispezionare l'evento appena accaduto
             mDoubleTapDetector.onTouchEvent(e);
-            // toppio tap per tornare alla situazione iniziale
+
+            // se è avventuo un doppio tap e non ho ancora resettato l'oggetto allora lo resetto
             if (doubleTapOccoured && !resetted)
             {
-                Log.d("DEBUG","doppio tocco");
                 int pointerIndex = e.findPointerIndex((e.getPointerId(0)));
                 mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                 mRenderer.resetHead();
@@ -75,10 +75,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
             }
 
 
-            //se c'è un solo tocco e non stai zoomando, interpretarlo come rotazione
+            //se c'è un solo tocco e non sto zoomando, interpretarlo come rotazione
             if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
 
-                //se il tocco dovesse passare da modalità "ruota" a modalità "scala"
+                //se il tocco dovesse passare da modalità "ruota" a modalità "zoom"
                 //il metodo che scala troverà un valore inziale su cui basarla
                 scaleDetectorWasInProgress = false;
                 mScaleFactor = 1;
@@ -87,21 +87,23 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_MOVE:
                         //se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
-                        if ((e.getPointerId(0) != mActivePointerId)) {// || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
+                        if ((e.getPointerId(0) != mActivePointerId)) {
                             //troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         } else if (!doubleTapOccoured) {
-                            //ruotiamo solo se non è stato rilevato un double tap (che implica uno zoom)
+                            //ruotiamo solo se non è stato rilevato un double tap (che implica un reset)
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
                         break;
                     case MotionEvent.ACTION_UP:
+                        //annulliamo la variabile che indica se è avvenuto un doppio tap...
                         doubleTapOccoured = false;
-                        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+                        //...e permettiamo un nuovo possibile reset di un oggetto
                         resetted = false;
+                        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                         break;
                 }
             } else
@@ -109,20 +111,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
             {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                 //se è il primo tocco di una sequenza di tocchi per scalare un oggetto
-                if (!scaleDetectorWasInProgress)
-                {
-                    //se si sta scalando l'oggetto usando 2 dita
-                    if (e.getPointerCount() >= 2) {
-                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                                new Vector3(e.getX(1), e.getY(1), 0));
-                    }
-                    //oppure se si sta usando una "scala a trascinamento"
-                    //cioè un tap seguito da uno slide subito dopo
+                if (!scaleDetectorWasInProgress) {
+                    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                            new Vector3(e.getX(1), e.getY(1), 0));
 
-                    //else {
-                    //    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                    //            new Vector3(e.getX(0), e.getY(0), 0));
-                    //}
                 }
 
                 mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);

@@ -65,8 +65,6 @@ public class Model3DVBO extends Model3D {
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, drawListBuffer.capacity()
                 * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        vertexBuffer.
     }
 
     //draw molto simile a quella del Model3D solo che usa i Vertex Buffer Object (VBO) invece dei
