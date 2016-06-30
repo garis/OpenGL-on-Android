@@ -155,15 +155,13 @@ public class Model3D {
     }
 
     protected void compute_mvpMatrix(float[] mViewMatrix, float[] mProjectionMatrix) {
-        // preparativi per generare la matrice di model-view-projection....
-        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
+        // applica la rotazione alla matrice del modello...
+        Matrix.multiplyMM(mvpMatrix, 0, modelMatrix, 0, accumulatedRotation, 0);
+
+        // ...poi applica la matrice di view...
+        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, mvpMatrix, 0);
+        // / ...e infine la matrice di proiezione...
         Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
-
-        // copia mvpMatrix in tempMatrix
-        System.arraycopy(mvpMatrix, 0, tempMatrix, 0, 16);
-
-        // ... moltiplica accumulatedRotation con tempMatrix per dar vita a mvpMatrix
-        Matrix.multiplyMM(mvpMatrix, 0, tempMatrix, 0, accumulatedRotation, 0);
     }
 
     public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
@@ -312,10 +310,12 @@ public class Model3D {
         // ...e salva questa nuova matrice di rotazione in accumulatedRotation che verrà usata nel rendering
         System.arraycopy(rotationMatrix, 0, accumulatedRotation, 0, 16);
 
-        // come ultima cosa tiene traccia degli angoli di rotazione sui 3 assi
-        angle.x(angle.x() + rotationVector.x());
-        angle.y(angle.y() + rotationVector.y());
-        angle.z(angle.z() + rotationVector.z());
+        // come ultima cosa calcola i gradi che esprimono la rotazione attuale
+        //convertendoli in gradi da radianti e poi invertendoli
+        angle.x(-Math.atan2(accumulatedRotation[9],accumulatedRotation[10])*180/Math.PI);
+        angle.y(-Math.atan2(-accumulatedRotation[8],
+                (float)Math.sqrt(accumulatedRotation[9]*accumulatedRotation[9]+accumulatedRotation[10]*accumulatedRotation[10]))*180/Math.PI);
+        angle.z(-Math.atan2(accumulatedRotation[4],accumulatedRotation[0])*180/Math.PI);
     }
 
     // scala l'oggetto

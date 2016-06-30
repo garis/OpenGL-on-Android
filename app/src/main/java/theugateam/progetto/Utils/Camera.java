@@ -16,9 +16,8 @@ public class Camera {
     private float ScreenHeigth;
 
     private float[] ProjectionMatrix;
-    private float[] ViewMatrix;
 
-    private float[] PVMatrix;
+    private float[] ViewMatrix;
 
     public Camera() {
         _cameraX = 0;
@@ -64,13 +63,11 @@ public class Camera {
         ScreenHeigth = screenHeight;
         float ratio = ScreenWidth / ScreenHeigth;
         Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
-        Matrix.multiplyMM(PVMatrix,0,ProjectionMatrix,0,ViewMatrix,0);
     }
 
     // setta la matrice che rappresenta la camera che andrà ad inquadrare la scena
     private void setViewMatrix() {
         Matrix.setLookAtM(ViewMatrix, 0, _cameraX, _cameraY, _cameraZ, _cameraLAX, _cameraLAY, _cameraLAZ, 0.0f, 1.0f, 0.0f);
-        Matrix.multiplyMM(PVMatrix,0,ProjectionMatrix,0,ViewMatrix,0);
     }
 
     public float[] getViewMatrix() {
@@ -79,9 +76,5 @@ public class Camera {
 
     public float[] getProjectionMatrix() {
         return ProjectionMatrix;
-    }
-
-    public float[] getPVMatrix() {
-        return PVMatrix;
     }
 }
