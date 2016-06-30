@@ -114,18 +114,17 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                 // se è il primo tocco di una sequenza di tocchi per scalare un oggetto
                 if (!scaleDetectorWasInProgress) {
-                    startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                            new Vector3(e.getX(1), e.getY(1), 0));
                     //se però l'oggetto si sta animando fa in modo che la scal non avvenga
                     if (mRenderer.isSelectedForScaleAnimating())
                         scaleDetectorWasInProgress = false;
-                    else
+                    else {
                         // altrimenti facciamo in modo che la prossima volta che si entra
-                        // nel touch event per la scala non ci si salvi una nuova scala di partenza
+                        // nel touch event per la scala si scali
+                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                                new Vector3(e.getX(1), e.getY(1), 0));
                         scaleDetectorWasInProgress = true;
-                }
-
-                if (scaleDetectorWasInProgress)
+                    }
+                } else
                     mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
 
             }
