@@ -41,8 +41,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float ZFar;
     private Vector3 touchDownCoords;
     private Camera camera;
-    private Model3DVBO[] heads;
-    private Model3DVBO selectedHeads;
+    private Model3DVBOAnimated[] heads;
+    private Model3DVBOAnimated selectedHeads;
     private Model3D loadingGear;
     private Model3D loadingText;
     private float startTime;
@@ -102,47 +102,47 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 new Vector3(0, 0, 0));
         loadingText.setColor(0, 114, 187, 255);
 
-        selectedHeads = new Model3DVBO(context);
-        heads = new Model3DVBO[3];
+        selectedHeads = new Model3DVBOAnimated(context);
+        heads = new Model3DVBOAnimated[3];
 
         // inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
         // le texture usando thread asincroni
-        heads[0] = new Model3DVBO(context);
+        heads[0] = new Model3DVBOAnimated(context);
         heads[0].setName("nastro");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
                 new Vector3(2, 2, 2),
                 new Vector3(90, 0, 0));
         Thread thread0 = new Thread() {
             public void run() {
-                heads[0].loadFromOBJThreaded(context, "mobius");
+                heads[0].loadFromOBJThreaded(context, "axis");
                 heads[0].saveBitmap(context, R.drawable.mobius);
             }
         };
 
         thread0.start();
 
-        heads[1] = new Model3DVBO(context);
+        heads[1] = new Model3DVBOAnimated(context);
         heads[1].setName("pigna");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
                 new Vector3(0.9, 0.9, 0.9),
                 new Vector3(90, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "mobius");
+                heads[1].loadFromOBJThreaded(context, "axis");
                 heads[1].saveBitmap(context, R.drawable.mobius);
             }
         };
 
         thread1.start();
 
-        heads[2] = new Model3DVBO(context);
+        heads[2] = new Model3DVBOAnimated(context);
         heads[2].setName("bottiglia");
         heads[2].moveScaleRotate(new Vector3(10, 0, 0),
                 new Vector3(1.5, 1.5, 1.5),
                 new Vector3(90, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
-                heads[2].loadFromOBJThreaded(context, "mobius");
+                heads[2].loadFromOBJThreaded(context, "axis");
                 heads[2].saveBitmap(context, R.drawable.mobius);
             }
         };
@@ -150,6 +150,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         thread2.start();
     }
 
+    //aggiorna gli oggetti da disegnare nel caso avessere qualcosa da fare
+    //ad esempio animazioni e rotazioni
     public void update() {
         frameTime=stateTime;
         stateTime = (float) System.nanoTime() / 10000000f - startTime;
@@ -161,12 +163,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 loadingGear.rotate(new Vector3(loadingGear.getRotation(0), loadingGear.getRotation(1), frameTime*0.7f));
                 boolean flag = true;
                 for (i = 0; i < heads.length; i++) {
-                    if (heads[i].state() == 2) {
+                    if (heads[i].loadingState() == 2) {
                         // una volta che il thread di appoggio ha caricato texture e geometria
                         // il thread principale deve caricare il tutto in OpenGL
                         heads[i].loadObjData();
                         heads[i].loadFromSavedBitmap();
-                    } else if (heads[i].state() != Model3D.LOADING_COMPLETED)
+                    } else if (heads[i].loadingState() != Model3D.LOADING_COMPLETED)
                         // finchè non è tutto caricato rimane nella schermata di loading
                         flag = false;
                 }
@@ -175,6 +177,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
 
             case DRAWING:
+                for (i = 0; i < heads.length; i++) heads[i].update(frameTime);
                 break;
         }
     }
@@ -209,7 +212,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         startTime = System.nanoTime() / 10000000f;
         // potrebbe servire in sviluppi futuri per eseguire azioni al cambio di stato
         switch (status) {
-
             case LOADING:
                 break;
 
@@ -236,6 +238,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    //ritorna lo stato in cui si trova l'oggetto selezionato da un singolo tocco
+    public boolean isSelectedHeadSingleTouchAnimating()
+    {
+        if(selectedHeads.isIdling())
+            return false;
+        return true;
+    }
+
     // seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
     public float selectedForScale(Vector3 point1, Vector3 point2) {
         // se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
@@ -253,7 +263,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 selectedHeads = heads[2];
         }
         return selectedHeads.getGlobalScale();
+    }
 
+    //ritorna lo stato in cui si trova l'oggetto selezionato da un doppio tocco (quindi uno zoom)
+    public boolean isSelectedForScaleAnimating()
+    {
+        if(selectedHeads.isIdling())
+            return false;
+        return true;
     }
 
     // imposta la nuova scala all'oggetto d'interesse
@@ -276,8 +293,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void resetHead()
     {
-        selectedHeads.resetRotation(new Vector3(90,0,0));
-        selectedHeads.setGlobalScale(1.0f);
+        selectedHeads.initializeResetAnimation(new Vector3(0,0,0),new Vector3(0.5f,0.5f,0.5f),0.01f);
     }
 
     // endregion

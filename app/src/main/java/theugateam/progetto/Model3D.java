@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -84,9 +85,9 @@ public class Model3D {
 
         // preleva da file e compila il vertex shader e il fragment shader
         int vertexShader = MyGLRenderer.loadShader(
-                GLES20.GL_VERTEX_SHADER, MyGLRenderer.readTextFileFromResource(context,R.raw.vertexshader));
+                GLES20.GL_VERTEX_SHADER, MyGLRenderer.readTextFileFromResource(context, R.raw.vertexshader));
         int fragmentShader = MyGLRenderer.loadShader(
-                GLES20.GL_FRAGMENT_SHADER,  MyGLRenderer.readTextFileFromResource(context,R.raw.fragmentshader));
+                GLES20.GL_FRAGMENT_SHADER, MyGLRenderer.readTextFileFromResource(context, R.raw.fragmentshader));
 
         // creiamo un nuvo programma OpenGL
         mProgram = GLES20.glCreateProgram();
@@ -176,7 +177,7 @@ public class Model3D {
         GLES20.glEnableVertexAttribArray(mPositionHandle);
 
         // manda a OpenGL i vertici
-        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);    // Prepare the triangle coordinate data
+        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
 
         // istruisce il fragment shader riguardo al colore da applicare
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
@@ -261,11 +262,11 @@ public class Model3D {
     }
 
     // carica la geometria in strutture dati usabili da OpenGL
-    public void loadObjData(){
+    public void loadObjData() {
         this.updateGeometryAndUVs(SquareCoords, UVCoords, DrawOrder);
-        SquareCoords=new float[0];
-        UVCoords=new  float[0];
-        DrawOrder=new int[0];
+        SquareCoords = new float[0];
+        UVCoords = new float[0];
+        DrawOrder = new int[0];
     }
 
     // endregion
@@ -281,8 +282,7 @@ public class Model3D {
     }
 
     // azzera la matrice di rotazione e gli applica una rotazione
-    public void resetRotation(Vector3 rotationVector)
-    {
+    public void resetRotation(Vector3 rotationVector) {
         // setta la matrice accumulatedRotation come matrice identità...
         Matrix.setIdentityM(accumulatedRotation, 0);
         // ...gli applica la rotazione...
@@ -294,43 +294,6 @@ public class Model3D {
         angle.x(rotationVector.x());
         angle.y(rotationVector.y());
         angle.z(rotationVector.z());
-    }
-
-    // scala l'oggetto
-    private void scale(Vector3 newScale) {
-        Matrix.setIdentityM(modelMatrix, 0);
-
-        move(position);
-
-        scale.x(newScale.x());
-        scale.y(newScale.y());
-        scale.z(newScale.z());
-
-        Matrix.scaleM(modelMatrix, 0, (float) scale.x(), (float) scale.y(), (float) scale.z());
-        rotate(new Vector3(0, 0, 0));
-    }
-
-    // ritorna la scala globale
-    public float getGlobalScale()
-    {
-        // per convenzione se la scala deve essere su tutti e tre gli assi
-        // allora si considera scale.x() per tutti gli assi
-        return (float) scale.x();
-    }
-
-    // setta la stessa scala su tutti gli assi
-    public void setGlobalScale(float newScale)
-    {
-        scale(new Vector3(newScale,newScale,newScale));
-    }
-
-    // muove l'oggetto
-    private void move(Vector3 newPosition) {
-        position.x(newPosition.x());
-        position.y(newPosition.y());
-        position.z(newPosition.z());
-
-        Matrix.translateM(modelMatrix, 0, (float) position.x(), (float) position.y(), (float) position.z());
     }
 
     // ruota l'oggetto
@@ -352,12 +315,36 @@ public class Model3D {
         // come ultima cosa tiene traccia degli angoli di rotazione sui 3 assi
         angle.x(angle.x() + rotationVector.x());
         angle.y(angle.y() + rotationVector.y());
-        angle.z(angle.x() + rotationVector.z());
+        angle.z(angle.z() + rotationVector.z());
     }
 
-    // endregion
+    // scala l'oggetto
+    protected void scale(Vector3 newScale) {
+        Matrix.setIdentityM(modelMatrix, 0);
 
-    // region VARIE
+        move(position);
+
+        scale.x(newScale.x());
+        scale.y(newScale.y());
+        scale.z(newScale.z());
+
+        Matrix.scaleM(modelMatrix, 0, (float) scale.x(), (float) scale.y(), (float) scale.z());
+        rotate(new Vector3(0, 0, 0));
+    }
+
+    // setta la stessa scala su tutti gli assi
+    public void setGlobalScale(float newScale) {
+        scale(new Vector3(newScale, newScale, newScale));
+    }
+
+    // muove l'oggetto
+    private void move(Vector3 newPosition) {
+        position.x(newPosition.x());
+        position.y(newPosition.y());
+        position.z(newPosition.z());
+
+        Matrix.translateM(modelMatrix, 0, (float) position.x(), (float) position.y(), (float) position.z());
+    }
 
     public float getRotation(int n) {
         switch (n) {
@@ -371,6 +358,26 @@ public class Model3D {
         return -1;
     }
 
+    public Vector3 getRotation() {
+        return new Vector3(angle.x(), angle.y(), angle.z());
+    }
+
+
+    // ritorna la scala globale
+    public float getGlobalScale() {
+        // per convenzione se la scala deve essere su tutti e tre gli assi
+        // allora si considera scale.x() per tutti gli assi
+        return (float) scale.x();
+    }
+
+    public Vector3 getScale() {
+        return new Vector3(scale.x(), scale.y(), scale.z());
+    }
+
+    // endregion
+
+    // region VARIE
+
     // red, green, blue and alpha from 0 to 255
     public void setColor(int r, int g, int b, int a) {
         color[0] = r / 255f;
@@ -379,21 +386,18 @@ public class Model3D {
         color[3] = a / 255f;
     }
 
-    public int state() {
+    public int loadingState() {
         return resourcesLoaded;
     }
 
-    public void setName(String Name)
-    {
+    public void setName(String Name) {
         mName = Name;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return mName;
     }
 
     // endregion
-
 }

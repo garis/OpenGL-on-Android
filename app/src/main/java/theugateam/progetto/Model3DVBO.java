@@ -21,6 +21,7 @@ public class Model3DVBO extends Model3D {
     public Model3DVBO(Context context){
         super(context);
     }
+
     @Override
     protected void updatePointerVariables() {
 

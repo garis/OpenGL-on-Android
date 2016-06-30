@@ -58,7 +58,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
-        if(mRenderer.getState()== MyGLRenderer.STATUS.DRAWING) {
+        if (mRenderer.getState() == MyGLRenderer.STATUS.DRAWING) {
 
             // chiamo ScaleGestureDetector per ispezionare l'evento appena accaduto
             mScaleDetector.onTouchEvent(e);
@@ -66,17 +66,14 @@ public class MyGLSurfaceView extends GLSurfaceView {
             mDoubleTapDetector.onTouchEvent(e);
 
             // se è avventuo un doppio tap e non ho ancora resettato l'oggetto allora lo resetto
-            if (doubleTapOccoured && !resetted)
-            {
+            if (doubleTapOccoured && !resetted) {
                 int pointerIndex = e.findPointerIndex((e.getPointerId(0)));
                 mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                 mRenderer.resetHead();
                 resetted = true;
             }
-
-
             // se c'è un solo tocco e non sto zoomando, interpretarlo come rotazione
-            if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
+            else if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
 
                 // se il tocco dovesse passare da modalità "ruota" a modalità "zoom"
                 // il metodo che scala troverà un valore inziale su cui basarla
@@ -87,11 +84,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 switch (e.getAction()) {
                     case MotionEvent.ACTION_MOVE:
                         // se l'utente ha cambiato dito o se il puntatore relativo al tocco è invalido
-                        if ((e.getPointerId(0) != mActivePointerId)) {
+                        if ((e.getPointerId(0) != mActivePointerId) || (mActivePointerId == MotionEvent.INVALID_POINTER_ID)) {
                             // troviamo un nuovo punto di riferimento iniziale su cui basare la rotazione
                             mActivePointerId = e.getPointerId(0);
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.selectHeadSingleTouch(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
+                            //se però l'oggetto è in animazione annulla il puntatore appena trovato
+                            //in modo da rimandare l'operazione di rotazione nel prossimo touch event che accadrà
+                            if (mRenderer.isSelectedHeadSingleTouchAnimating()) {
+                                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+                            }
                         } else if (!doubleTapOccoured) {
                             // ruotiamo solo se non è stato rilevato un double tap (che implica un reset)
                             pointerIndex = e.findPointerIndex(mActivePointerId);
@@ -114,14 +116,18 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 if (!scaleDetectorWasInProgress) {
                     startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
                             new Vector3(e.getX(1), e.getY(1), 0));
-
+                    //se però l'oggetto si sta animando fa in modo che la scal non avvenga
+                    if (mRenderer.isSelectedForScaleAnimating())
+                        scaleDetectorWasInProgress = false;
+                    else
+                        // altrimenti facciamo in modo che la prossima volta che si entra
+                        // nel touch event per la scala non ci si salvi una nuova scala di partenza
+                        scaleDetectorWasInProgress = true;
                 }
 
-                mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
+                if (scaleDetectorWasInProgress)
+                    mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
 
-                // ora facciamo in modo che la prossima volta che si entra qui, non ci si salvi una
-                // nuova scala di partenza
-                scaleDetectorWasInProgress = true;
             }
         }
         return true;
@@ -136,8 +142,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
             doubleTapOccoured = true;
             return true;
         }
-
     }
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
