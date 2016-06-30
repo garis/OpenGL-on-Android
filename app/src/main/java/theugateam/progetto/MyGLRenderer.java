@@ -194,14 +194,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
             case LOADING:
                 // disegna gli elementi appartenenti alla schermata di looading
-                loadingGear.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
-                loadingText.draw(camera.getViewMatrix(), camera.getProjectionMatrix());
+                loadingGear.draw(camera.getVPMatrix());
+                loadingText.draw(camera.getVPMatrix());
                 break;
 
             case DRAWING:
                 // disegna gli elementi appartenenti alla schermata principale
                 for (i = 0; i < heads.length; i++) {
-                    heads[i].draw(camera.getViewMatrix(), camera.getProjectionMatrix());
+                    heads[i].draw(camera.getVPMatrix());
                 }
                 break;
         }

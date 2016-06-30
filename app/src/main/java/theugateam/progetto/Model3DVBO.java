@@ -71,9 +71,9 @@ public class Model3DVBO extends Model3D {
     // draw molto simile a quella del Model3D solo che usa i Vertex Buffer Object (VBO) invece dei
     // buffer di java
     @Override
-    public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
+    public void draw(float[] VPMatrix) {
 
-        compute_mvpMatrix(mViewMatrix, mProjectionMatrix);
+        compute_mvpMatrix(VPMatrix);
 
         // specifica quale programma OpenGL usare in questa draw
         GLES20.glUseProgram(mProgram);

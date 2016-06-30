@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -154,19 +153,17 @@ public class Model3D {
         resourcesLoaded++;
     }
 
-    protected void compute_mvpMatrix(float[] mViewMatrix, float[] mProjectionMatrix) {
+    protected void compute_mvpMatrix(float[] VPMatrix) {
         // applica la rotazione alla matrice del modello...
-        Matrix.multiplyMM(mvpMatrix, 0, modelMatrix, 0, accumulatedRotation, 0);
+        Matrix.multiplyMM(tempMatrix, 0, modelMatrix, 0, accumulatedRotation, 0);
 
-        // ...poi applica la matrice di view...
-        Matrix.multiplyMM(tempMatrix, 0, mViewMatrix, 0, mvpMatrix, 0);
-        // / ...e infine la matrice di proiezione...
-        Matrix.multiplyMM(mvpMatrix, 0, mProjectionMatrix, 0, tempMatrix, 0);
+        // / ...e applica la matrice che contiene il risultato della matrice view e di proiezione...
+        Matrix.multiplyMM(mvpMatrix, 0, VPMatrix, 0, tempMatrix, 0);
     }
 
-    public void draw(float[] mViewMatrix, float[] mProjectionMatrix) {
+    public void draw(float[] VPMatrix) {
 
-        compute_mvpMatrix(mViewMatrix, mProjectionMatrix);
+        compute_mvpMatrix(VPMatrix);
 
         // specifica quale programma OpenGL usare in questa draw
         GLES20.glUseProgram(mProgram);

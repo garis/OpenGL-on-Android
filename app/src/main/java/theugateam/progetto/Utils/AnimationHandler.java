@@ -1,7 +1,5 @@
 package theugateam.progetto.Utils;
 
-import android.util.Log;
-
 public class AnimationHandler {
 
     private Vector3 startingPoint;
