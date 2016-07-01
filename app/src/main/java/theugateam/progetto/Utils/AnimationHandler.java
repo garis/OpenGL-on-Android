@@ -10,6 +10,7 @@ public class AnimationHandler {
 
     //consigliati valori da 0 a 1
     private float speed;
+
     private boolean ended;
 
     public AnimationHandler()
@@ -51,7 +52,6 @@ public class AnimationHandler {
                 currentPoint.z(endingPoint.z() * position + startingPoint.z() * (1 - position));
             }
         }
-        //Log.d("DEBUG","ROTATION "+currentPoint.toString());
         return currentPoint;
     }
 

@@ -40,12 +40,14 @@ public class Model3DVBOAnimated extends Model3DVBO {
         }
     }
 
+    //impedisce la rotazione nel caso sia in corso un'animazione
     @Override
     public void rotate(Vector3 rotationVector) {
         if (state == STATE.IDLE)
             super.rotate(rotationVector);
     }
 
+    //impedisce lo zoom nel caso sia in corso un'animazione
     @Override
     public void setGlobalScale(float newScale) {
         if (state == STATE.IDLE)

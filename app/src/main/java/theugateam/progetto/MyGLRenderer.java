@@ -122,14 +122,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         thread0.start();
 
         heads[1] = new Model3DVBOAnimated(context);
-        heads[1].setName("pigna");
+        heads[1].setName("gatto");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
                 new Vector3(0.9, 0.9, 0.9),
                 new Vector3(90, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "axis");
-                heads[1].saveBitmap(context, R.drawable.mobius);
+                heads[1].loadFromOBJThreaded(context, "gatto");
+                heads[1].saveBitmap(context, R.drawable.gatto);
             }
         };
 

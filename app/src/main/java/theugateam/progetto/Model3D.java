@@ -308,7 +308,7 @@ public class Model3D {
         System.arraycopy(rotationMatrix, 0, accumulatedRotation, 0, 16);
 
         // come ultima cosa calcola i gradi che esprimono la rotazione attuale
-        //convertendoli in gradi da radianti e poi invertendoli
+        // convertendoli da radianti in gradi e poi cambiandone il segno
         angle.x(-Math.atan2(accumulatedRotation[9],accumulatedRotation[10])*180/Math.PI);
         angle.y(-Math.atan2(-accumulatedRotation[8],
                 (float)Math.sqrt(accumulatedRotation[9]*accumulatedRotation[9]+accumulatedRotation[10]*accumulatedRotation[10]))*180/Math.PI);
