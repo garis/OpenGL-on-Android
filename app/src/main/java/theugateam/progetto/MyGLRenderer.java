@@ -110,7 +110,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[0] = new Model3DVBOAnimated(context);
         heads[0].setName("nastro");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
-                new Vector3(2, 2, 2),
+                new Vector3(3, 3, 3),
                 new Vector3(90, 0, 0));
         Thread thread0 = new Thread() {
             public void run() {
@@ -124,12 +124,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[1] = new Model3DVBOAnimated(context);
         heads[1].setName("gatto");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
-                new Vector3(0.9, 0.9, 0.9),
+                new Vector3(3, 3, 3),
                 new Vector3(0, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "gatto");
-                heads[1].saveBitmap(context, R.drawable.gatto);
+                heads[1].loadFromOBJThreaded(context, "gaspa");
+                heads[1].saveBitmap(context, R.drawable.gaspa);
             }
         };
 
@@ -138,7 +138,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[2] = new Model3DVBOAnimated(context);
         heads[2].setName("bottiglia");
         heads[2].moveScaleRotate(new Vector3(10, 0, 0),
-                new Vector3(1.5, 1.5, 1.5),
+                new Vector3(3, 3, 3),
                 new Vector3(90, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
@@ -301,7 +301,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void resetHead()
     {
-        selectedHeads.initializeResetAnimation(new Vector3(0,0,0),new Vector3(0.5f,0.5f,0.5f),0.01f);
+        selectedHeads.initializeResetAnimation(new Vector3(0,0,0),new Vector3(3, 3, 3),0.01f);
     }
 
     // endregion
