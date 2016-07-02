@@ -125,7 +125,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[1].setName("gatto");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
                 new Vector3(0.9, 0.9, 0.9),
-                new Vector3(90, 0, 0));
+                new Vector3(0, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
                 heads[1].loadFromOBJThreaded(context, "gatto");
@@ -265,8 +265,16 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return selectedHeads.getGlobalScale();
     }
 
+    // ritorna la scala oggetto interessato dallo zoom
+    public float getSelectedScale() {
+        if (STATE == STATUS.DRAWING&&selectedHeads!=null) {
+            return selectedHeads.getGlobalScale();
+        }
+        return 1;
+    }
+
     //ritorna lo stato in cui si trova l'oggetto selezionato da un doppio tocco (quindi uno zoom)
-    public boolean isSelectedForScaleAnimating()
+    public boolean selectedForScaleIsAnimating()
     {
         if(selectedHeads.isIdling())
             return false;

@@ -2,6 +2,7 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -24,10 +25,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private GestureDetector mDoubleTapDetector;
 
     // scala rilevata da mScaleDetector
-    private float mScaleFactor;
+    private float mDeltaScaleFactor;
 
-
-    private float startingScale = 1;
     private boolean scaleDetectorWasInProgress = false;
     public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
     private boolean resetted = false;
@@ -38,7 +37,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         // Crea un nuovo contesto OpenGL ES 2.0
         setEGLContextClientVersion(2);
 
-        mScaleFactor = 1;
+        mDeltaScaleFactor = 1;
 
         // Setta il render per disegnare nella GLSurfaceView
         mRenderer = new MyGLRenderer();
@@ -73,11 +72,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
             }
             // se c'è un solo tocco e non sto zoomando, interpretarlo come rotazione
             else if (!mScaleDetector.isInProgress() && e.getPointerCount() == 1) {
-
                 // se il tocco dovesse passare da modalità "ruota" a modalità "zoom"
                 // il metodo che scala troverà un valore inziale su cui basarla
                 scaleDetectorWasInProgress = false;
-                mScaleFactor = 1;
 
                 int pointerIndex;
                 switch (e.getAction()) {
@@ -93,8 +90,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
                             if (mRenderer.isSelectedHeadSingleTouchAnimating()) {
                                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                             }
-                        } else if (!doubleTapOccoured) {
-                            // ruotiamo solo se non è stato rilevato un double tap (che implica un reset)
+                        } else {
+                            // ruotiamo
                             pointerIndex = e.findPointerIndex(mActivePointerId);
                             mRenderer.rotateHead(new Vector3(e.getX(pointerIndex), e.getY(pointerIndex), 0));
                         }
@@ -112,20 +109,17 @@ public class MyGLSurfaceView extends GLSurfaceView {
             {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID;
                 // se è il primo tocco di una sequenza di tocchi per scalare un oggetto
-                if (!scaleDetectorWasInProgress) {
-                    //se però l'oggetto si sta animando fa in modo che la scal non avvenga
-                    if (mRenderer.isSelectedForScaleAnimating())
-                        scaleDetectorWasInProgress = false;
-                    else {
-                        // altrimenti facciamo in modo che la prossima volta che si entra
-                        // nel touch event per la scala si scali
-                        startingScale = mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                                new Vector3(e.getX(1), e.getY(1), 0));
-                        scaleDetectorWasInProgress = true;
-                    }
-                } else
-                    mRenderer.zoom(startingScale + (mScaleFactor - 1) * 1.5f);
-
+                // oppure l'oggeto si sta ancora animando
+                if (mRenderer.selectedForScaleIsAnimating() || !scaleDetectorWasInProgress) {
+                    // decidiamo quale oggetto è interessato dalla scala
+                    mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
+                            new Vector3(e.getX(1), e.getY(1), 0));
+                    // e facciamo in modo che la prossima volta che si entra
+                    // nel touch event per la scala si scali
+                    scaleDetectorWasInProgress = true;
+                } else if(mScaleDetector.isInProgress()){
+                    mRenderer.zoom(mRenderer.getSelectedScale() + mDeltaScaleFactor);
+                }
             }
         }
         return true;
@@ -145,15 +139,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
-        public boolean onScale(ScaleGestureDetector detector) {
+        public boolean onScaleBegin(ScaleGestureDetector detector){
             // resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
             // rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
+            mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+            return true;
+        }
 
-            mScaleFactor *= detector.getScaleFactor();
-
-            // limita i valori di zoom
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+                mDeltaScaleFactor = detector.getScaleFactor() - 1;
             return true;
         }
     }
