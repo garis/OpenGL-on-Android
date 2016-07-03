@@ -63,8 +63,8 @@ public class Camera {
         ScreenWidth = screenWidth;
         ScreenHeigth = screenHeight;
         float ratio = ScreenWidth / ScreenHeigth;
-        Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
-
+        // Matrix.frustumM(ProjectionMatrix, 0, -ratio, ratio, -1, 1, ZNear, ZFar);
+        Matrix.orthoM(ProjectionMatrix,0,-10*ratio, 10*ratio, -10, 10, ZNear, ZFar);
         VPMatrix = new float[16];
         Matrix.multiplyMM(VPMatrix, 0, ProjectionMatrix, 0, ViewMatrix, 0);
     }
