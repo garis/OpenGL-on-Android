@@ -112,8 +112,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 // oppure l'oggeto si sta ancora animando
                 if (mRenderer.selectedForScaleIsAnimating() || !scaleDetectorWasInProgress) {
                     // decidiamo quale oggetto è interessato dalla scala
-                    mRenderer.selectedForScale(new Vector3(e.getX(), e.getY(), 0),
-                            new Vector3(e.getX(1), e.getY(1), 0));
+                    mRenderer.selectedForScale(new Vector3(mScaleDetector.getFocusX(), mScaleDetector.getFocusY(), 0));
                     // e facciamo in modo che la prossima volta che si entra
                     // nel touch event per la scala si scali
                     scaleDetectorWasInProgress = true;

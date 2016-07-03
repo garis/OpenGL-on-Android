@@ -247,17 +247,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     // seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
-    public float selectedForScale(Vector3 point1, Vector3 point2) {
+    public float selectedForScale(Vector3 point) {
         // se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
         if (STATE == STATUS.DRAWING) {
-            Vector3 mid_point = new Vector3(
-                    (point2.x() + point1.x()) / 2.0f,
-                    (point2.y() + point1.y()) / 2.0f,
-                    0);
-
-            if (mid_point.x() / camera.getScreenWidth() < 0.33f) {
+            if (point.x() / camera.getScreenWidth() < 0.33f) {
                 selectedHeads = heads[0];
-            } else if (mid_point.x() / camera.getScreenWidth() < 0.66f)
+            } else if (point.x() / camera.getScreenWidth() < 0.66f)
                 selectedHeads = heads[1];
             else
                 selectedHeads = heads[2];
@@ -283,7 +278,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     // imposta la nuova scala all'oggetto d'interesse
     public void zoom(float scale) {
-        if (scale > 0)
+        if ((scale > 0)&&(scale<10))
             selectedHeads.setGlobalScale(scale);
     }
 
