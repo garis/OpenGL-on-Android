@@ -117,7 +117,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     // e facciamo in modo che la prossima volta che si entra
                     // nel touch event per la scala si scali
                     scaleDetectorWasInProgress = true;
-                } else if(mScaleDetector.isInProgress()){
+                } else if (mScaleDetector.isInProgress()) {
                     mRenderer.zoom(mRenderer.getSelectedScale() + mDeltaScaleFactor);
                 }
             }
@@ -138,8 +138,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
+        private final int scaleFactor = 4;
+
         @Override
-        public boolean onScaleBegin(ScaleGestureDetector detector){
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
             // resetta l'id del pointer attivo ogni volta che si scala, così quando si ritorna alla
             // rotazione si riparte prendendo un punto di riferimento (su schermo) per effettuarla
             mActivePointerId = MotionEvent.INVALID_POINTER_ID;
@@ -148,7 +150,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-                mDeltaScaleFactor = detector.getScaleFactor() - 1;
+            mDeltaScaleFactor = (detector.getScaleFactor() - 1) * scaleFactor;
             return true;
         }
     }

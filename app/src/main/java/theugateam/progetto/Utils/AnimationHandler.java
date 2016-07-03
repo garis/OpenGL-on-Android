@@ -1,5 +1,6 @@
 package theugateam.progetto.Utils;
 
+// classe per gestire la transizione tra due stati di un'animazione
 public class AnimationHandler {
 
     private Vector3 startingPoint;
