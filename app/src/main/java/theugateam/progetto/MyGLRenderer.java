@@ -139,7 +139,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         heads[2].setName("luca");
         heads[2].moveScaleRotate(new Vector3(10, 0, 0),
                 new Vector3(3, 3, 3),
-                new Vector3(90, 0, 0));
+                new Vector3(0, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
                 heads[2].loadFromOBJThreaded(context, "luca");
