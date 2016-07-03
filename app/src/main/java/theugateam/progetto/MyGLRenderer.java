@@ -108,42 +108,42 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
         // le texture usando thread asincroni
         heads[0] = new Model3DVBOAnimated(context);
-        heads[0].setName("yle");
+        heads[0].setName("gaspa");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
                 new Vector3(3, 3, 3),
                 new Vector3(0, 0, 0));
         Thread thread0 = new Thread() {
             public void run() {
-                heads[0].loadFromOBJThreaded(context, "yle");
-                heads[0].saveBitmap(context, R.drawable.yle);
+                heads[0].loadFromOBJThreaded(context, "gaspa");
+                heads[0].saveBitmap(context, R.drawable.gaspa);
             }
         };
 
         thread0.start();
 
         heads[1] = new Model3DVBOAnimated(context);
-        heads[1].setName("gaspa");
+        heads[1].setName("yle");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
                 new Vector3(3, 3, 3),
                 new Vector3(0, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "gaspa");
-                heads[1].saveBitmap(context, R.drawable.gaspa);
+                heads[1].loadFromOBJThreaded(context, "yle");
+                heads[1].saveBitmap(context, R.drawable.yle);
             }
         };
 
         thread1.start();
 
         heads[2] = new Model3DVBOAnimated(context);
-        heads[2].setName("bottiglia");
+        heads[2].setName("luca");
         heads[2].moveScaleRotate(new Vector3(10, 0, 0),
                 new Vector3(3, 3, 3),
                 new Vector3(90, 0, 0));
         Thread thread2 = new Thread() {
             public void run() {
-                heads[2].loadFromOBJThreaded(context, "axis");
-                heads[2].saveBitmap(context, R.drawable.mobius);
+                heads[2].loadFromOBJThreaded(context, "luca");
+                heads[2].saveBitmap(context, R.drawable.luca);
             }
         };
 
