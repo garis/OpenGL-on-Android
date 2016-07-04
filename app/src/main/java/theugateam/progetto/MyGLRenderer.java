@@ -70,15 +70,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         changeState(STATUS.LOADING);
 
         // z buffer
-        // di default è GL_LESS
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LESS);
         GLES20.glDepthMask(true);
 
-        /*culling - graficamente rende peggio
+        /*culling - graficamente rende peggio*/
         GLES20.glFrontFace(GLES20.GL_CCW );
         GLES20.glCullFace(GLES20.GL_BACK);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);*/
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
 
         // inizializza la camera
         camera = new Camera();
@@ -87,8 +86,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // inizializza gli oggetti presenti nella schermata di caricamento
         loadingGear = new Model3D(context);
-        loadingGear.loadFromOBJ(context, "newgear");
-        loadingGear.loadGLTexture(context, R.drawable.white);
+        loadingGear.loadFromOBJ(context, "gear");
+        loadingGear.loadGLTexture(context, R.drawable.test_white);
         loadingGear.moveScaleRotate(new Vector3(0, 4, 0),
                 new Vector3(1.6, 1.6, 1.6),
                 new Vector3(0, 0, 0));
@@ -96,7 +95,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         loadingText = new Model3D(context);
         loadingText.loadFromOBJ(context, "loading");
-        loadingText.loadGLTexture(context, R.drawable.white);
+        loadingText.loadGLTexture(context, R.drawable.test_white);
         loadingText.moveScaleRotate(new Vector3(0, -7, 0),
                 new Vector3(2.7, 2.7, 2.7),
                 new Vector3(0, 0, 0));
