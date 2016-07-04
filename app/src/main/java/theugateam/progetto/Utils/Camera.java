@@ -2,7 +2,7 @@ package theugateam.progetto.Utils;
 
 import android.opengl.Matrix;
 
-// classe di supoorto per gestire la camera (posizione e orientamento) di OpenGL e le sue matrici
+// classe di supporto per gestire la camera (posizione e orientamento) di OpenGL e le sue matrici
 public class Camera {
 
     private float _cameraX;

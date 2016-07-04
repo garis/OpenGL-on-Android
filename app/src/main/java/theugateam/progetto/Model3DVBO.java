@@ -91,7 +91,7 @@ public class Model3DVBO extends Model3D {
         // istruisce il fragment shader riguardo al colore da applicare
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
 
-        // MATRIX AND TEXTURE
+        //passa a OpenGL lam matrice di trasformazione
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         // attiva l'uso delle texture

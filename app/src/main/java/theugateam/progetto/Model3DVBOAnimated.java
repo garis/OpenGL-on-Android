@@ -54,7 +54,7 @@ public class Model3DVBOAnimated extends Model3DVBO {
             super.setGlobalScale(newScale);
     }
 
-    //ritorna lo sta in cui si trova l'oggetto
+    //ritorna lo stato in cui si trova l'oggetto
     public boolean isIdling()
     {
         if(state == STATE.IDLE)

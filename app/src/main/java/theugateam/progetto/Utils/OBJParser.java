@@ -66,7 +66,7 @@ public class OBJParser {
         return flag;
     }
 
-    // costruisce i dati della geometria dell'oggetto analizzado il file precedentemente caricato
+    // costruisce i dati della geometria dell'oggetto analizzando il file precedentemente caricato
     private void createVertices() {
         List<Point> VList = new ArrayList<>();
         List<Point> VTList = new ArrayList<>();
@@ -85,7 +85,7 @@ public class OBJParser {
                 if (str[0].charAt(0) == 'v') {
                     VList.add(new Point(Float.parseFloat(str[1]), Float.parseFloat(str[2]), Float.parseFloat(str[3])));
                 }
-                // se è una riga che dice di quali punti (sia vertici sia texture) è composto ogni triangolo
+                // se è una riga contenetente un triangolo, dice di quali punti (sia vertici sia texture) è composto ogni triangolo
                 // (contrassegnato da "f")
                 else if (str[0].charAt(0) == 'f') {
                     for (int i = 1; i < str.length; i++) {

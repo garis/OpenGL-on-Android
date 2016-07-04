@@ -21,7 +21,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
     // rilevatore di gesture relative alla scala
     private ScaleGestureDetector mScaleDetector;
     // rilevatore di gesture relative ad un doppio tap
-    // usato per impedire la rotazione di un oggetto subito prima che avvenga uno zoom eseguito con un dto solo
     private GestureDetector mDoubleTapDetector;
 
     // scala rilevata da mScaleDetector

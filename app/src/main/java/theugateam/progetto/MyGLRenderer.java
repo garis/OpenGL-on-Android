@@ -150,7 +150,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         thread2.start();
     }
 
-    //aggiorna gli oggetti da disegnare nel caso avessere qualcosa da fare
+    //aggiorna gli oggetti da disegnare nel caso avessero qualcosa da fare
     //ad esempio animazioni e rotazioni
     public void update() {
         frameTime=stateTime;

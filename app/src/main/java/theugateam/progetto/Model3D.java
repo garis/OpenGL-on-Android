@@ -88,7 +88,7 @@ public class Model3D {
         int fragmentShader = MyGLRenderer.loadShader(
                 GLES20.GL_FRAGMENT_SHADER, MyGLRenderer.readTextFileFromResource(context, R.raw.fragmentshader));
 
-        // creiamo un nuvo programma OpenGL
+        // creiamo un nuovo programma OpenGL
         mProgram = GLES20.glCreateProgram();
         // gli attacchiamo un vertex shader....
         GLES20.glAttachShader(mProgram, vertexShader);
@@ -118,7 +118,7 @@ public class Model3D {
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
     }
 
-    // carica i vettori xcontenenti tutta la geometria di un modello dentro a delle strutture dati usabili da OpenGL
+    // carica i vettori contenenti tutta la geometria di un modello dentro a delle strutture dati usabili da OpenGL
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
 
         MyGLRenderer.checkGlError("updateGeometryAndUVs");
@@ -157,7 +157,7 @@ public class Model3D {
         // applica la rotazione alla matrice del modello...
         Matrix.multiplyMM(tempMatrix, 0, modelMatrix, 0, accumulatedRotation, 0);
 
-        // / ...e applica la matrice che contiene il risultato della matrice view e di proiezione...
+        // ... e applica la matrice che contiene il risultato della matrice view e di proiezione
         Matrix.multiplyMM(mvpMatrix, 0, VPMatrix, 0, tempMatrix, 0);
     }
 
@@ -227,8 +227,8 @@ public class Model3D {
         resourcesLoaded++;
     }
 
-    // per oggetti non troppo complessi si può usare questo mwtodo per caricare delle texture
-    // senza pasare per thread diverso da quello di OpenGL
+    // per oggetti non troppo complessi si può usare questo metodo per caricare delle texture
+    // senza passare per thread diverso da quello di OpenGL
     public void loadGLTexture(Context context, int id) {
         saveBitmap(context, id);
         loadFromSavedBitmap();
