@@ -116,13 +116,12 @@ public class Model3D {
         textureUniformHandle = GLES20.glGetUniformLocation(mProgram, "s_texture");
         textureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_texCoord");
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+
+        MyGLRenderer.checkGlError("updatePointerVariables");
     }
 
     // carica i vettori contenenti tutta la geometria di un modello dentro a delle strutture dati usabili da OpenGL
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
-
-        MyGLRenderer.checkGlError("updateGeometryAndUVs");
-
         // carica il buffer per i vertici
         ByteBuffer bb = ByteBuffer.allocateDirect(
                 // (# di punti * 4 bytes per float)
@@ -151,6 +150,8 @@ public class Model3D {
         uvBuffer.position(0);
 
         resourcesLoaded++;
+
+        MyGLRenderer.checkGlError("updateGeometryAndUVs");
     }
 
     protected void compute_mvpMatrix(float[] VPMatrix) {
@@ -225,6 +226,8 @@ public class Model3D {
             bitmap.recycle();
         }
         resourcesLoaded++;
+
+        MyGLRenderer.checkGlError("loadFromSavedBitmap");
     }
 
     // per oggetti non troppo complessi si può usare questo metodo per caricare delle texture
