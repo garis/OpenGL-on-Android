@@ -2,6 +2,7 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
 /**
  * questa sovrascrittura della classe Model3D implementa i vertex buffer
@@ -48,7 +49,6 @@ public class Model3DVBO extends Model3D {
     // carica la geometria tridimensionale (non disegna nulla ancora)
     @Override
     protected void updateGeometryAndUVs(float[] GeometryCoords, float[] UVCoords, int[] DrawOrder) {
-
         super.updateGeometryAndUVs(GeometryCoords, UVCoords, DrawOrder);
 
         // crea, riempi e assegna un buffer OpenGL per gestire i vertici della geometria
@@ -69,7 +69,7 @@ public class Model3DVBO extends Model3D {
                 * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        MyGLRenderer.checkGlError("updateGeometryAndUVs");
+        MyGLRenderer.checkGlError("FINE updateGeometryAndUVs");
     }
 
     // draw molto simile a quella del Model3D solo che usa i Vertex Buffer Object (VBO) invece dei
@@ -91,8 +91,6 @@ public class Model3DVBO extends Model3D {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
         GLES20.glVertexAttribPointer(textureCoordinateHandle, 2, GLES20.GL_FLOAT, false, 0, 0);
-
-        GLES20.glVertexAttribPointer(textureCoordinateHandle, 2, GLES20.GL_FLOAT_MAT2, false, 0, 0);
 
         // istruisce il fragment shader riguardo al colore da applicare
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
