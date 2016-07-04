@@ -75,9 +75,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glDepthMask(true);
 
         /*culling - graficamente rende peggio*/
-        GLES20.glFrontFace(GLES20.GL_CCW );
+        /*GLES20.glFrontFace(GLES20.GL_CCW );
         GLES20.glCullFace(GLES20.GL_BACK);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);*/
 
         // inizializza la camera
         camera = new Camera();
