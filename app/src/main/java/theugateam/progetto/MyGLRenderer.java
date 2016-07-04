@@ -108,28 +108,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // inizializza gli oggetti che andranno a disegnare le teste e carica la geometria e
         // le texture usando thread asincroni
         heads[0] = new Model3DVBOAnimated(context);
-        heads[0].setName("gaspa");
+        heads[0].setName("yle");
         heads[0].moveScaleRotate(new Vector3(-10, 0, 0),
                 new Vector3(3, 3, 3),
                 new Vector3(0, 0, 0));
         Thread thread0 = new Thread() {
             public void run() {
-                heads[0].loadFromOBJThreaded(context, "gaspa");
-                heads[0].saveBitmap(context, R.drawable.gaspa);
+                heads[0].loadFromOBJThreaded(context, "yle");
+                heads[0].saveBitmap(context, R.drawable.yle);
             }
         };
 
         thread0.start();
 
         heads[1] = new Model3DVBOAnimated(context);
-        heads[1].setName("yle");
+        heads[1].setName("gaspa");
         heads[1].moveScaleRotate(new Vector3(0, 0, 0),
                 new Vector3(3, 3, 3),
                 new Vector3(0, 0, 0));
         Thread thread1 = new Thread() {
             public void run() {
-                heads[1].loadFromOBJThreaded(context, "yle");
-                heads[1].saveBitmap(context, R.drawable.yle);
+                heads[1].loadFromOBJThreaded(context, "gaspa");
+                heads[1].saveBitmap(context, R.drawable.gaspa);
             }
         };
 
@@ -214,7 +214,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         switch (status) {
             case LOADING:
                 break;
-
             case DRAWING:
                 break;
         }
@@ -314,7 +313,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
      * @return - Returns an id for the shader.
      */
     public static int loadShader(int type, String shaderCode) {
-
         // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
         // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
         int shader = GLES20.glCreateShader(type);
