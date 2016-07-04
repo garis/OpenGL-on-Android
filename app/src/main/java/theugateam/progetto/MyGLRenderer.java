@@ -79,7 +79,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glCullFace(GLES20.GL_BACK);
         GLES20.glEnable(GLES20.GL_CULL_FACE);*/
 
-        gjul
         // inizializza la camera
         camera = new Camera();
         this.camera.setCameraPosition(new Vector3(0, 0, 12));
