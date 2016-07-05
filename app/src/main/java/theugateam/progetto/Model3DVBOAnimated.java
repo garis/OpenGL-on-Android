@@ -22,10 +22,8 @@ public class Model3DVBOAnimated extends Model3DVBO {
     }
 
     public void update(float frameTime) {
-
         if (state == STATE.ANIMATION) {
-            Vector3 v=rotationAnimation.update(frameTime);
-            super.resetRotation(new Vector3(v.x(),v.y(),v.z()));
+            super.resetRotation(rotationAnimation.update(frameTime));
             super.scale(scaleAnimation.update(frameTime));
             if (rotationAnimation.isEnded())
                 state = STATE.IDLE;

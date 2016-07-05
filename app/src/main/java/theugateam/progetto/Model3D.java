@@ -15,16 +15,13 @@ import java.nio.IntBuffer;
 import theugateam.progetto.Utils.OBJParser;
 import theugateam.progetto.Utils.Vector3;
 
-/**
- * A class for displaying 3D objects from an .OBJ file using OpenGL ES 2.0.
- */
 public class Model3D {
 
     // region TRACCIA_CARICAMENTO
 
-    // 2==> pronto per passare i dati ad OpenGL
-    // 4=LOADING_COMPLETED==> tutto caricato
-    // altri valori ==> operazioni in corso
+    // 2                    ==>     pronto per passare i dati ad OpenGL
+    // 4 (LOADING_COMPLETED)==>     tutto caricato
+    // altri valori         ==>     operazioni in corso
     protected int resourcesLoaded;
 
     public static final int LOADING_COMPLETED = 4;
@@ -179,9 +176,10 @@ public class Model3D {
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
 
         // preparazione per il passaggio delle coordinate della texture
-        GLES20.glVertexAttribPointer(textureCoordinateHandle, UV_COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, uvBuffer);
-
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
+
+        // preparazione per il passaggio delle coordinate della texture
+        GLES20.glVertexAttribPointer(textureCoordinateHandle, UV_COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, uvBuffer);
 
         // attiva l'uso delle texture
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);

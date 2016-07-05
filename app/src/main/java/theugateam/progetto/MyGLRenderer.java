@@ -206,10 +206,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    // utile per eseguire azioni al cambio di stato
     private void changeState(STATUS status) {
         STATE = status;
         startTime = System.nanoTime() / 10000000f;
-        // potrebbe servire in sviluppi futuri per eseguire azioni al cambio di stato
         switch (status) {
             case LOADING:
                 break;
@@ -223,6 +223,20 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     // region AZIONI_TOUCH
+
+    // seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
+    public float selectedForScale(Vector3 point) {
+        // se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
+        if (STATE == STATUS.DRAWING) {
+            if (point.x() / camera.getScreenWidth() < 0.33f) {
+                selectedHeads = heads[0];
+            } else if (point.x() / camera.getScreenWidth() < 0.66f)
+                selectedHeads = heads[1];
+            else
+                selectedHeads = heads[2];
+        }
+        return selectedHeads.getGlobalScale();
+    }
 
     // decide quale testa è da ruotare
     public void selectHeadSingleTouch(Vector3 screenCoords) {
@@ -244,20 +258,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return true;
     }
 
-    // seleziona l'oggetto interessato dallo zoom e ne ritorna la scala
-    public float selectedForScale(Vector3 point) {
-        // se ci troviamo nello stato DRAWING allora decide quale oggetto è da modificare e ritorna la sua scala
-        if (STATE == STATUS.DRAWING) {
-            if (point.x() / camera.getScreenWidth() < 0.33f) {
-                selectedHeads = heads[0];
-            } else if (point.x() / camera.getScreenWidth() < 0.66f)
-                selectedHeads = heads[1];
-            else
-                selectedHeads = heads[2];
-        }
-        return selectedHeads.getGlobalScale();
-    }
-
     // ritorna la scala oggetto interessato dallo zoom
     public float getSelectedScale() {
         if (STATE == STATUS.DRAWING&&selectedHeads!=null) {
@@ -269,14 +269,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     //ritorna lo stato in cui si trova l'oggetto selezionato da un doppio tocco (quindi uno zoom)
     public boolean selectedForScaleIsAnimating()
     {
-        if(selectedHeads.isIdling())
+        if(selectedHeads!=null&&selectedHeads.isIdling())
             return false;
         return true;
     }
 
     // imposta la nuova scala all'oggetto d'interesse
     public void zoom(float scale) {
-        if ((scale > 0)&&(scale<10))
+        if ((scale > 0)&&(scale<12))
             selectedHeads.setGlobalScale(scale);
     }
 

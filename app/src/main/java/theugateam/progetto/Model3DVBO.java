@@ -2,7 +2,6 @@ package theugateam.progetto;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Log;
 
 /**
  * questa sovrascrittura della classe Model3D implementa i vertex buffer
@@ -34,16 +33,16 @@ public class Model3DVBO extends Model3D {
         uvVBO = new int[1];
         indexVBO = new int[1];
 
-        // genera i buffer, ed esegue un controllo errori
+        // genera i buffers, ed esegue un controllo errori
         // VBO stuffs
         GLES20.glGenBuffers(1, coordsVBO, 0);
         GLES20.glGenBuffers(1, uvVBO, 0);
         GLES20.glGenBuffers(1, indexVBO, 0);
 
+        MyGLRenderer.checkGlError("updatePointerVariables");
+
         // variabile per avere lo stato dell'oggetto (utile in multithreading)
         resourcesLoaded = 0;
-
-        MyGLRenderer.checkGlError("updatePointerVariables");
     }
 
     // carica la geometria tridimensionale (non disegna nulla ancora)
@@ -57,13 +56,13 @@ public class Model3DVBO extends Model3D {
                 * 4, vertexBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
-        // crea, riempi e assegna un buffer OpenGL per gestire l'ordine con cui devono essere usati i vertici
+        // crea, riempi e assegna un buffer OpenGL per gestire i vertici della texture
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, uvVBO[0]);
         GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, uvBuffer.capacity()
                 * 4, uvBuffer, GLES20.GL_STATIC_DRAW);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
-        // crea, riempi e assegna un buffer OpenGL per gestire i vertici della texture
+        // crea, riempi e assegna un buffer OpenGL per gestire l'ordine con cui devono essere disegnati i vertici
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexVBO[0]);
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, drawListBuffer.capacity()
                 * 4, drawListBuffer, GLES20.GL_STATIC_DRAW);
@@ -95,7 +94,7 @@ public class Model3DVBO extends Model3D {
         // istruisce il fragment shader riguardo al colore da applicare
         GLES20.glUniform4f(colorUniformHandle, color[0], color[1], color[2], color[3]);
 
-        //passa a OpenGL lam matrice di trasformazione
+        //passa a OpenGL la matrice di model-view-projection
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         // attiva l'uso delle texture

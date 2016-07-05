@@ -26,17 +26,23 @@ public class MyGLSurfaceView extends GLSurfaceView {
     // scala rilevata da mScaleDetector
     private float mDeltaScaleFactor;
 
-    private boolean scaleDetectorWasInProgress = false;
-    public int mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-    private boolean resetted = false;
+    private boolean scaleDetectorWasInProgress;
+    public int mActivePointerId;
+    private boolean resetted;
+    private boolean doubleTapOccoured;
+
 
     public MyGLSurfaceView(Context context) {
         super(context);
 
+        scaleDetectorWasInProgress = false;
+        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+        resetted = false;
+        doubleTapOccoured = false;
+        mDeltaScaleFactor = 0;
+
         // Crea un nuovo contesto OpenGL ES 2.0
         setEGLContextClientVersion(2);
-
-        mDeltaScaleFactor = 1;
 
         // Setta il render per disegnare nella GLSurfaceView
         mRenderer = new MyGLRenderer();
@@ -122,8 +128,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
         }
         return true;
     }
-
-    private boolean doubleTapOccoured = false;
 
     public class GestureDoubleTap extends GestureDetector.SimpleOnGestureListener {
 
