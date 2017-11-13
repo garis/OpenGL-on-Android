@@ -1,5 +1,6 @@
 # Un po' di info #
 
+YouTube video: https://www.youtube.com/watch?v=YknP7q0-k1I
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YknP7q0-k1I/0.jpg)](https://www.youtube.com/watch?v=YknP7q0-k1I)
 
 Il programma per fare il modello 3d si chiama "123D Catch" della Autodesk.
